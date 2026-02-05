@@ -13,7 +13,7 @@ export default defineConfig({
       compression({
         verbose: true,
         disable: false,
-        threshold: 10240, // Compress files larger than 10KB
+        threshold: 10240,
         algorithm: 'gzip',
         ext: '.gz',
       }),
@@ -21,8 +21,6 @@ export default defineConfig({
         verbose: true,
         disable: false,
         threshold: 10240,
-        algorithm: 'brotli',
-        ext: '.br',
       }),
     ],
   },
