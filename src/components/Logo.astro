@@ -1,0 +1,42 @@
+---
+interface Props {
+	size?: "small" | "medium" | "large";
+}
+
+const { size = "medium" } = Astro.props;
+const sizeMap = {
+	small: "24",
+	medium: "32",
+	large: "48",
+};
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width={sizeMap[size]} height={sizeMap[size]} class="logo">
+  <!-- Camera shutter-inspired circular design with initials AV -->
+  <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-width="2"/>
+  <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="1.5"/>
+
+  <!-- Shutter blades suggesting a camera aperture -->
+  <path d="M 50 50 L 50 15" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  <path d="M 50 50 L 75 30" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  <path d="M 50 50 L 85 50" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  <path d="M 50 50 L 75 70" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  <path d="M 50 50 L 50 85" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  <path d="M 50 50 L 25 70" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  <path d="M 50 50 L 15 50" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  <path d="M 50 50 L 25 30" stroke="currentColor" stroke-width="1.5" fill="none"/>
+
+  <!-- Center circle -->
+  <circle cx="50" cy="50" r="8" fill="currentColor"/>
+</svg>
+
+<style>
+  .logo {
+    color: inherit;
+    transition: transform 0.2s ease;
+  }
+
+  a:hover .logo {
+    transform: rotate(15deg);
+  }
+</style>

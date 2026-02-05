@@ -1,51 +1,61 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import Stats from '../components/Stats.astro';
-import yaml from 'js-yaml';
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import Stats from "../components/Stats.astro";
+import yaml from "js-yaml";
 
 interface Photo {
-  id: string;
-  title: string;
-  image: string;
-  thumbnail: string;
-  metadata: {
-    camera: string;
-    lens: string;
-    settings: {
-      iso: number;
-      aperture: string;
-      shutter: string;
-      focalLength: number | string;
-    };
-    location: string;
-    dateTaken: string;
-  };
+	id: string;
+	title: string;
+	image: string;
+	thumbnail: string;
+	metadata: {
+		camera: string;
+		lens: string;
+		settings: {
+			iso: number;
+			aperture: string;
+			shutter: string;
+			focalLength: number | string;
+		};
+		location: string;
+		dateTaken: string;
+	};
 }
 
 interface Collection {
-  collection: string;
-  description: string;
-  photos: Photo[];
+	collection: string;
+	description: string;
+	photos: Photo[];
 }
 
 // Load stats data
-const statsFile = await import('../data/stats.yaml?raw', { assert: { type: 'raw' } });
+const statsFile = await import("../data/stats.yaml?raw", {
+	assert: { type: "raw" },
+});
 const statsData = yaml.load(statsFile.default) as {
-  title: string;
-  subtitle: string;
-  details: Array<{ label: string; title: string; text?: string; description: string }>;
+	title: string;
+	subtitle: string;
+	details: Array<{
+		label: string;
+		title: string;
+		text?: string;
+		description: string;
+	}>;
 };
 
 // Load all YAML files
-const collectionFiles = import.meta.glob('../data/collections/*.yaml', { query: '?raw', import: 'default' });
+const collectionFiles = import.meta.glob("../data/collections/*.yaml", {
+	query: "?raw",
+	import: "default",
+});
 const allPhotos: Photo[] = [];
 
 for (const [_path, getContent] of Object.entries(collectionFiles)) {
-  const content = (await getContent()) as string;
-  const data = yaml.load(content) as Collection;
-  allPhotos.push(...data.photos);
+	const content = (await getContent()) as string;
+	const data = yaml.load(content) as Collection;
+	allPhotos.push(...data.photos);
 }
 
 const photoCount = allPhotos.length;
@@ -54,15 +64,15 @@ const collectionCount = Object.keys(collectionFiles).length;
 
 <Layout title="Statistics - Adrian Villanueva" description="Photography portfolio statistics: total photos, collections, and gear used.">
   <Header currentPage="stats" />
-  
+
   <main class="main">
     <section class="stats-section">
       <div class="stats-container">
         <h1>{statsData.title}</h1>
         <p class="subtitle">{statsData.subtitle}</p>
-        
+
         <Stats photoCount={photoCount} collectionCount={collectionCount} camera="Canon EOS R5" />
-        
+
         <div class="stats-details">
           {statsData.details.map((detail) => (
             <div class="detail-card">

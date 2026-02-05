@@ -1,69 +1,75 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-import PhotoCard from '../../components/PhotoCard.astro';
-import Breadcrumbs from '../../components/Breadcrumbs.astro';
-import yaml from 'js-yaml';
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import PhotoCard from "../../components/PhotoCard.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import yaml from "js-yaml";
 
 interface Photo {
-  id: string;
-  title: string;
-  image: string;
-  thumbnail: string;
-  metadata: {
-    camera: string;
-    lens: string;
-    settings: {
-      iso: number;
-      aperture: string;
-      shutter: string;
-      focalLength: number | string;
-    };
-    location: string;
-    dateTaken: string;
-  };
+	id: string;
+	title: string;
+	image: string;
+	thumbnail: string;
+	metadata: {
+		camera: string;
+		lens: string;
+		settings: {
+			iso: number;
+			aperture: string;
+			shutter: string;
+			focalLength: number | string;
+		};
+		location: string;
+		dateTaken: string;
+	};
 }
 
 interface Collection {
-  collection: string;
-  description: string;
-  photos: Photo[];
+	collection: string;
+	description: string;
+	photos: Photo[];
 }
 
 export async function getStaticPaths() {
-  const collectionFiles = import.meta.glob('../../data/collections/*.yaml', { query: '?raw', import: 'default' });
-  const paths = [];
-  
-  for (const [path] of Object.entries(collectionFiles)) {
-    const slug = path.split('/').pop()?.replace('.yaml', '') || '';
-    paths.push({ params: { collection: slug } });
-  }
-  
-  return paths;
+	const collectionFiles = import.meta.glob("../../data/collections/*.yaml", {
+		query: "?raw",
+		import: "default",
+	});
+	const paths = [];
+
+	for (const [path] of Object.entries(collectionFiles)) {
+		const slug = path.split("/").pop()?.replace(".yaml", "") || "";
+		paths.push({ params: { collection: slug } });
+	}
+
+	return paths;
 }
 
 const { collection } = Astro.params;
-const collectionFiles = import.meta.glob('../../data/collections/*.yaml', { query: '?raw', import: 'default' });
+const collectionFiles = import.meta.glob("../../data/collections/*.yaml", {
+	query: "?raw",
+	import: "default",
+});
 
 let data: Collection | null = null;
 for (const [path, getContent] of Object.entries(collectionFiles)) {
-  const slug = path.split('/').pop()?.replace('.yaml', '') || '';
-  if (slug === collection) {
-    const content = (await getContent()) as string;
-    data = yaml.load(content) as Collection;
-    break;
-  }
+	const slug = path.split("/").pop()?.replace(".yaml", "") || "";
+	if (slug === collection) {
+		const content = (await getContent()) as string;
+		data = yaml.load(content) as Collection;
+		break;
+	}
 }
 
 if (!data) {
-  throw new Error(`Collection ${collection} not found`);
+	throw new Error(`Collection ${collection} not found`);
 }
 ---
 
 <Layout title={`${data.collection} - Adrian Villanueva`} description={data.description} image={data.photos[0]?.image}>
   <Header currentPage="collections" />
-  
+
   <main class="main">
     <section class="collection-header">
       <div class="header-container">

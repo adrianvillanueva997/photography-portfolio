@@ -1,6 +1,8 @@
 ---
+import Logo from "./Logo.astro";
+
 interface Props {
-  currentPage?: string;
+	currentPage?: string;
 }
 
 const { currentPage } = Astro.props;
@@ -8,7 +10,10 @@ const { currentPage } = Astro.props;
 
 <header class="header" role="banner">
   <div class="header-container">
-    <a href="/" class="logo" aria-label="Adrian Villanueva - Home">Adrian Villanueva</a>
+    <a href="/" class="logo-link" aria-label="Adrian Villanueva - Home">
+      <Logo size="medium" />
+      <span class="logo-text">Adrian Villanueva</span>
+    </a>
     <nav class="nav" role="navigation" aria-label="Main navigation">
       <a href="/" class={currentPage === 'home' ? 'active' : ''} aria-current={currentPage === 'home' ? 'page' : undefined}>Home</a>
       <a href="/collections" class={currentPage === 'collections' ? 'active' : ''} aria-current={currentPage === 'collections' ? 'page' : undefined}>Collections</a>
@@ -46,6 +51,25 @@ const { currentPage } = Astro.props;
 
   .logo:hover {
     color: #d4af37;
+  }
+
+  .logo-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .logo-link:hover {
+    color: #d4af37;
+  }
+
+  .logo-text {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: inherit;
+    letter-spacing: -0.5px;
   }
 
   .nav {

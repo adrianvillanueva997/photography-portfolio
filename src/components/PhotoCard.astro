@@ -1,24 +1,24 @@
 ---
-import MetadataCard from './MetadataCard.astro';
-import Lightbox from './Lightbox.astro';
+import MetadataCard from "./MetadataCard.astro";
+import Lightbox from "./Lightbox.astro";
 
 interface Props {
-  id: string;
-  title: string;
-  image: string;
-  thumbnail: string;
-  metadata: {
-    camera: string;
-    lens: string;
-    settings: {
-      iso: number;
-      aperture: string;
-      shutter: string;
-      focalLength: number | string;
-    };
-    location: string;
-    dateTaken: string;
-  };
+	id: string;
+	title: string;
+	image: string;
+	thumbnail: string;
+	metadata: {
+		camera: string;
+		lens: string;
+		settings: {
+			iso: number;
+			aperture: string;
+			shutter: string;
+			focalLength: number | string;
+		};
+		location: string;
+		dateTaken: string;
+	};
 }
 
 const { id, title, image, thumbnail, metadata } = Astro.props;
@@ -40,7 +40,7 @@ const { id, title, image, thumbnail, metadata } = Astro.props;
 
 <script define:vars={{ id }}>
   const trigger = document.querySelector(`[data-lightbox-trigger="${id}"]`);
-  
+
   function openLightbox() {
     const lightbox = document.getElementById(`lightbox-${id}`);
     if (lightbox) {
@@ -48,7 +48,7 @@ const { id, title, image, thumbnail, metadata } = Astro.props;
       document.body.style.overflow = 'hidden';
     }
   }
-  
+
   trigger?.addEventListener('click', openLightbox);
   trigger?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {

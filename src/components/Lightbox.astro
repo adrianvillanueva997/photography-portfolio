@@ -1,20 +1,22 @@
 ---
+import Watermark from './Watermark.astro';
+
 interface Props {
-  id: string;
-  image: string;
-  title: string;
-  metadata: {
-    camera: string;
-    lens: string;
-    settings: {
-      iso: number;
-      aperture: string;
-      shutter: string;
-      focalLength: number | string;
-    };
-    location: string;
-    dateTaken: string;
-  };
+	id: string;
+	image: string;
+	title: string;
+	metadata: {
+		camera: string;
+		lens: string;
+		settings: {
+			iso: number;
+			aperture: string;
+			shutter: string;
+			focalLength: number | string;
+		};
+		location: string;
+		dateTaken: string;
+	};
 }
 
 const { id, image, title, metadata } = Astro.props;
@@ -31,6 +33,7 @@ const { id, image, title, metadata } = Astro.props;
     </button>
     <div class="lightbox-image-wrapper">
       <img src={image} alt={title} />
+      <Watermark photographer="© Adrian Villanueva" />
       <div class="lightbox-info">
         <p class="lightbox-title">{title}</p>
         <div class="lightbox-metadata">
@@ -183,17 +186,17 @@ const { id, image, title, metadata } = Astro.props;
 
   function navigatePhotos(direction) {
     if (!lightbox?.classList.contains('active')) return;
-    
+
     const allTriggers = document.querySelectorAll('[data-lightbox-trigger]');
     const currentIndex = Array.from(allTriggers).findIndex(t => t.getAttribute('data-lightbox-trigger') === id);
-    
+
     let nextIndex;
     if (direction === 'next') {
       nextIndex = (currentIndex + 1) % allTriggers.length;
     } else {
       nextIndex = (currentIndex - 1 + allTriggers.length) % allTriggers.length;
     }
-    
+
     const nextTrigger = allTriggers[nextIndex];
     if (nextTrigger) {
       closeLightbox();
@@ -232,10 +235,10 @@ const { id, image, title, metadata } = Astro.props;
   lightbox?.addEventListener('touchend', (e) => {
     touchEndX = e.changedTouches[0].screenX;
     if (!lightbox?.classList.contains('active')) return;
-    
+
     const swipeThreshold = 50;
     const diff = touchStartX - touchEndX;
-    
+
     if (Math.abs(diff) > swipeThreshold) {
       if (diff > 0) {
         navigatePhotos('next'); // Swiped left, show next

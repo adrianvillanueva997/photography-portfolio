@@ -1,0 +1,53 @@
+---
+interface Props {
+  photographer?: string;
+}
+
+const { photographer = "© Adrian Villanueva" }: Props = Astro.props;
+---
+
+<div class="watermark">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" class="watermark-svg">
+    <text x="100" y="28" text-anchor="middle" class="watermark-text">{`${photographer}`}</text>
+  </svg>
+</div>
+
+<style>
+  .watermark {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    width: 180px;
+    height: 40px;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .watermark-svg {
+    width: 100%;
+    height: 100%;
+    color: var(--color-primary);
+  }
+
+  .watermark-text {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    fill: currentColor;
+    opacity: 0.3;
+    letter-spacing: 0.5px;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
+  }
+
+  @media (max-width: 768px) {
+    .watermark {
+      bottom: 0.75rem;
+      right: 0.75rem;
+      width: 140px;
+      height: 30px;
+    }
+
+    .watermark-text {
+      font-size: 10px;
+    }
+  }
+</style>

@@ -1,40 +1,43 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-import yaml from 'js-yaml';
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import yaml from "js-yaml";
 
 interface Collection {
-  collection: string;
-  description: string;
-  photos: Array<{
-    id: string;
-    title: string;
-    thumbnail: string;
-  }>;
+	collection: string;
+	description: string;
+	photos: Array<{
+		id: string;
+		title: string;
+		thumbnail: string;
+	}>;
 }
 
 // Load all YAML files
-const collectionFiles = import.meta.glob('../../data/collections/*.yaml', { query: '?raw', import: 'default' });
+const collectionFiles = import.meta.glob("../../data/collections/*.yaml", {
+	query: "?raw",
+	import: "default",
+});
 const collections: Array<{ data: Collection; slug: string }> = [];
 
 for (const [path, getContent] of Object.entries(collectionFiles)) {
-  const content = (await getContent()) as string;
-  const data = yaml.load(content) as Collection;
-  const slug = path.split('/').pop()?.replace('.yaml', '') || '';
-  collections.push({ data, slug });
+	const content = (await getContent()) as string;
+	const data = yaml.load(content) as Collection;
+	const slug = path.split("/").pop()?.replace(".yaml", "") || "";
+	collections.push({ data, slug });
 }
 ---
 
 <Layout title="Collections - Adrian Villanueva" description="Browse photography collections: Urban landscapes and nature photography from Tokyo.">
   <Header currentPage="collections" />
-  
+
   <main class="main">
     <section class="collections-section">
       <div class="collections-container">
         <h1>Collections</h1>
         <p class="subtitle">Explore my photography organized by theme</p>
-        
+
         <div class="collections-grid">
           {collections.map((collection) => (
             <a href={`/collections/${collection.slug}`} class="collection-card">

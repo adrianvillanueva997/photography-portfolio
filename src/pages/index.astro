@@ -1,54 +1,57 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import ProfileSection from '../components/ProfileSection.astro';
-import PhotoCard from '../components/PhotoCard.astro';
-import yaml from 'js-yaml';
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import ProfileSection from "../components/ProfileSection.astro";
+import PhotoCard from "../components/PhotoCard.astro";
+import yaml from "js-yaml";
 
 interface Photo {
-  id: string;
-  title: string;
-  image: string;
-  thumbnail: string;
-  metadata: {
-    camera: string;
-    lens: string;
-    settings: {
-      iso: number;
-      aperture: string;
-      shutter: string;
-      focalLength: number | string;
-    };
-    location: string;
-    dateTaken: string;
-  };
+	id: string;
+	title: string;
+	image: string;
+	thumbnail: string;
+	metadata: {
+		camera: string;
+		lens: string;
+		settings: {
+			iso: number;
+			aperture: string;
+			shutter: string;
+			focalLength: number | string;
+		};
+		location: string;
+		dateTaken: string;
+	};
 }
 
 interface Collection {
-  collection: string;
-  description: string;
-  photos: Photo[];
+	collection: string;
+	description: string;
+	photos: Photo[];
 }
 
 // Load all YAML files
-const collectionFiles = import.meta.glob('../data/collections/*.yaml', { query: '?raw', import: 'default' });
+const collectionFiles = import.meta.glob("../data/collections/*.yaml", {
+	query: "?raw",
+	import: "default",
+});
 const allPhotos: Photo[] = [];
 
 for (const [_path, getContent] of Object.entries(collectionFiles)) {
-  const content = (await getContent()) as string;
-  const data = yaml.load(content) as Collection;
-  allPhotos.push(...data.photos);
+	const content = (await getContent()) as string;
+	const data = yaml.load(content) as Collection;
+	allPhotos.push(...data.photos);
 }
 
 // Shuffle photos
 function shuffleArray<T>(array: T[]): T[] {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
+	const shuffled = [...array];
+	for (let i = shuffled.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+	}
+	return shuffled;
 }
 
 const randomizedPhotos = shuffleArray(allPhotos);
@@ -56,10 +59,10 @@ const randomizedPhotos = shuffleArray(allPhotos);
 
 <Layout title="Adrian Villanueva - Photography Portfolio" description="Tokyo-based photographer showcasing urban landscapes and natural beauty. Capturing moments with Canon EOS R5.">
   <Header currentPage="home" />
-  
+
   <main class="main">
     <ProfileSection />
-    
+
     <section class="gallery-section">
       <div class="gallery-container">
         <div class="gallery-grid">
