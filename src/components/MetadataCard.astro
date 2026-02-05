@@ -1,0 +1,73 @@
+---
+interface Props {
+  metadata: {
+    camera: string;
+    lens: string;
+    settings: {
+      iso: number;
+      aperture: string;
+      shutter: string;
+      focalLength: number | string;
+    };
+    location: string;
+    dateTaken: string;
+  };
+}
+
+const { metadata } = Astro.props;
+---
+
+<div class="metadata-card">
+  <div class="metadata-row">
+    <span class="label">📍</span>
+    <span class="value">{metadata.location}</span>
+  </div>
+  <div class="metadata-row">
+    <span class="label">📷</span>
+    <span class="value">{metadata.camera}</span>
+  </div>
+  <div class="metadata-row">
+    <span class="label">⚙️</span>
+    <span class="value">
+      {metadata.settings.aperture} • ISO {metadata.settings.iso} • {metadata.settings.shutter}
+    </span>
+  </div>
+  <div class="metadata-row">
+    <span class="label">📅</span>
+    <span class="value">{metadata.dateTaken}</span>
+  </div>
+</div>
+
+<style>
+  .metadata-card {
+    background: rgba(10, 10, 10, 0.95);
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    padding: 1rem;
+    backdrop-filter: blur(10px);
+  }
+
+  .metadata-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .metadata-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .label {
+    width: 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .value {
+    color: #a0a0a0;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    word-break: break-word;
+  }
+</style>

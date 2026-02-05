@@ -1,0 +1,174 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import yaml from 'js-yaml';
+
+interface Collection {
+  collection: string;
+  description: string;
+  photos: Array<{
+    id: string;
+    title: string;
+    thumbnail: string;
+  }>;
+}
+
+// Load all YAML files
+const collectionFiles = import.meta.glob('../../data/collections/*.yaml', { query: '?raw', import: 'default' });
+const collections: Array<{ data: Collection; slug: string }> = [];
+
+for (const [path, getContent] of Object.entries(collectionFiles)) {
+  const content = (await getContent()) as string;
+  const data = yaml.load(content) as Collection;
+  const slug = path.split('/').pop()?.replace('.yaml', '') || '';
+  collections.push({ data, slug });
+}
+---
+
+<Layout title="Collections - Adrian Villanueva" description="Browse photography collections: Urban landscapes and nature photography from Tokyo.">
+  <Header currentPage="collections" />
+  
+  <main class="main">
+    <section class="collections-section">
+      <div class="collections-container">
+        <h1>Collections</h1>
+        <p class="subtitle">Explore my photography organized by theme</p>
+        
+        <div class="collections-grid">
+          {collections.map((collection) => (
+            <a href={`/collections/${collection.slug}`} class="collection-card">
+              <div class="collection-preview">
+                <img src={collection.data.photos[0]?.thumbnail} alt={collection.data.collection} />
+                <div class="overlay">
+                  <h2>{collection.data.collection}</h2>
+                  <p>{collection.data.photos.length} photos</p>
+                </div>
+              </div>
+              <div class="collection-info">
+                <h3>{collection.data.collection}</h3>
+                <p>{collection.data.description}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  .main {
+    min-height: calc(100vh - 200px);
+  }
+
+  .collections-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    color: #f5f5f5;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .subtitle {
+    color: #a0a0a0;
+    font-size: 1.1rem;
+    margin: 0 0 3rem 0;
+  }
+
+  .collections-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+  }
+
+  .collection-card {
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.3s ease;
+  }
+
+  .collection-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .collection-preview {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    background: #1a1a1a;
+  }
+
+  .collection-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .collection-card:hover .collection-preview img {
+    transform: scale(1.05);
+  }
+
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.9));
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 2rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .collection-card:hover .overlay {
+    opacity: 1;
+  }
+
+  .overlay h2 {
+    color: #f5f5f5;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+  }
+
+  .overlay p {
+    color: #a0a0a0;
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  .collection-info h3 {
+    color: #f5f5f5;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.3rem;
+  }
+
+  .collection-info p {
+    color: #a0a0a0;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 768px) {
+    .collections-grid {
+      grid-template-columns: 1fr;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+  }
+</style>

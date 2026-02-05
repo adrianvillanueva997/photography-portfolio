@@ -1,0 +1,247 @@
+---
+interface Props {
+  id: string;
+  image: string;
+  title: string;
+  metadata: {
+    camera: string;
+    lens: string;
+    settings: {
+      iso: number;
+      aperture: string;
+      shutter: string;
+      focalLength: number | string;
+    };
+    location: string;
+    dateTaken: string;
+  };
+}
+
+const { id, image, title, metadata } = Astro.props;
+---
+
+<div class="lightbox" id={`lightbox-${id}`}>
+  <div class="lightbox-backdrop"></div>
+  <div class="lightbox-content">
+    <button class="lightbox-close" aria-label="Close">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    <div class="lightbox-image-wrapper">
+      <img src={image} alt={title} />
+      <div class="lightbox-info">
+        <p class="lightbox-title">{title}</p>
+        <div class="lightbox-metadata">
+          <span>{metadata.camera}</span>
+          <span>{metadata.settings.aperture}</span>
+          <span>ISO {metadata.settings.iso}</span>
+          <span>{metadata.settings.shutter}</span>
+          <span>📍 {metadata.location}</span>
+          <span>📅 {metadata.dateTaken}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .lightbox.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .lightbox-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(4px);
+  }
+
+  .lightbox-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 90vw;
+    max-height: 90vh;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lightbox-image-wrapper {
+    position: relative;
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .lightbox-image-wrapper img {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 4px;
+  }
+
+  .lightbox-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+    width: 100%;
+  }
+
+  .lightbox-title {
+    color: #f5f5f5;
+    font-size: 1.25rem;
+    margin: 0;
+    text-align: center;
+  }
+
+  .lightbox-metadata {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    color: #a0a0a0;
+    font-size: 0.9rem;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    width: 100%;
+  }
+
+  .lightbox-metadata span {
+    white-space: nowrap;
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    background: none;
+    border: none;
+    color: #f5f5f5;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+    z-index: 1002;
+  }
+
+  .lightbox-close:hover {
+    color: #d4af37;
+  }
+
+  .lightbox-close svg {
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .lightbox-close {
+      top: 1rem;
+      right: 1rem;
+    }
+
+    .lightbox-image-wrapper img {
+      max-height: 75vh;
+    }
+  }
+</style>
+
+<script define:vars={{ id }}>
+  const lightbox = document.getElementById(`lightbox-${id}`);
+  const backdrop = lightbox?.querySelector('.lightbox-backdrop');
+  const closeBtn = lightbox?.querySelector('.lightbox-close');
+
+  function closeLightbox() {
+    lightbox?.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function navigatePhotos(direction) {
+    if (!lightbox?.classList.contains('active')) return;
+    
+    const allTriggers = document.querySelectorAll('[data-lightbox-trigger]');
+    const currentIndex = Array.from(allTriggers).findIndex(t => t.getAttribute('data-lightbox-trigger') === id);
+    
+    let nextIndex;
+    if (direction === 'next') {
+      nextIndex = (currentIndex + 1) % allTriggers.length;
+    } else {
+      nextIndex = (currentIndex - 1 + allTriggers.length) % allTriggers.length;
+    }
+    
+    const nextTrigger = allTriggers[nextIndex];
+    if (nextTrigger) {
+      closeLightbox();
+      nextTrigger.click();
+    }
+  }
+
+  backdrop?.addEventListener('click', closeLightbox);
+  closeBtn?.addEventListener('click', closeLightbox);
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox?.classList.contains('active')) {
+      closeLightbox();
+    }
+    // Navigate with arrow keys
+    if (lightbox?.classList.contains('active')) {
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        navigatePhotos('next');
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        navigatePhotos('prev');
+      }
+    }
+  });
+
+  // Swipe navigation for mobile
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  lightbox?.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, false);
+
+  lightbox?.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    if (!lightbox?.classList.contains('active')) return;
+    
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) {
+        navigatePhotos('next'); // Swiped left, show next
+      } else {
+        navigatePhotos('prev'); // Swiped right, show previous
+      }
+    }
+  }, false);
+</script>

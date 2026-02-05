@@ -1,0 +1,241 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import yaml from "js-yaml";
+
+const aboutFile = await import("../data/about.yaml?raw", {
+	assert: { type: "raw" },
+});
+const aboutData = yaml.load(aboutFile.default) as {
+	title: string;
+	bio: Array<{ section: string; content: string }>;
+	gear: {
+		primary: { name: string; spec: string; description: string };
+		lenses: Array<{ name: string; spec: string }>;
+		backup: { name: string; spec: string; description: string };
+	};
+	contact: { intro: string; links: Array<{ label: string; url: string }> };
+};
+---
+
+<Layout title="About - Adrian Villanueva" description="Learn about Adrian Villanueva, a Tokyo-based photographer. Specializing in urban and nature photography.">
+  <Header currentPage="about" />
+
+  <main class="main">
+    <section class="about-section">
+      <div class="about-container">
+        <h1>About Me</h1>
+
+        <div class="about-content">
+          <div class="about-text">
+            {aboutData.bio.map((section) => (
+              <>
+                <h2>{section.section}</h2>
+                {section.content.split('\n').map((paragraph) => (
+                  <p>{paragraph.trim()}</p>
+                ))}
+              </>
+            ))}
+
+            <h2>Camera Equipment</h2>
+            <div class="gear-section">
+              <div class="gear-item">
+                <h3>Primary Camera</h3>
+                <p class="gear-name">{aboutData.gear.primary.name}</p>
+                <p class="gear-spec">{aboutData.gear.primary.spec}</p>
+                <p class="gear-desc">{aboutData.gear.primary.description}</p>
+              </div>
+
+              <div class="gear-item">
+                <h3>Lenses</h3>
+                <div class="lens-list">
+                  {aboutData.gear.lenses.map((lens) => (
+                    <div class="lens">
+                      <p class="lens-name">{lens.name}</p>
+                      <p class="lens-spec">{lens.spec}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div class="gear-item">
+                <h3>Backup & Accessories</h3>
+                <p class="gear-name">{aboutData.gear.backup.name}</p>
+                <p class="gear-spec">{aboutData.gear.backup.spec}</p>
+                <p class="gear-desc">{aboutData.gear.backup.description}</p>
+              </div>
+            </div>
+
+            <h2>Get in Touch</h2>
+            <p>{aboutData.contact.intro}</p>
+            <div class="contact-links">
+              {aboutData.contact.links.map((link) => (
+                <a href={link.url} target="_blank" rel="noopener noreferrer">{link.label}</a>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  .main {
+    min-height: calc(100vh - 200px);
+  }
+
+  .about-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+
+  .about-container h1 {
+    font-size: 2.5rem;
+    color: #f5f5f5;
+    margin: 0 0 3rem 0;
+  }
+
+  .about-content {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .about-text {
+    color: #a0a0a0;
+    line-height: 1.8;
+  }
+
+  .about-text h2 {
+    color: #f5f5f5;
+    font-size: 1.5rem;
+    margin: 2.5rem 0 1rem 0;
+  }
+
+  .about-text p {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.05rem;
+  }
+
+  .gear-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 2rem 0;
+  }
+
+  .gear-list li {
+    padding: 0.75rem 0;
+    color: #a0a0a0;
+    font-size: 1.05rem;
+  }
+
+  .gear-list strong {
+    color: #f5f5f5;
+    font-weight: 600;
+  }
+
+  .gear-section {
+    display: grid;
+    gap: 2.5rem;
+    margin: 1.5rem 0 2rem 0;
+  }
+
+  .gear-item h3 {
+    color: #d4af37;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 1rem 0;
+    font-weight: 600;
+  }
+
+  .gear-name {
+    color: #f5f5f5;
+    font-size: 1.15rem;
+    margin: 0 0 0.25rem 0;
+    font-weight: 600;
+  }
+
+  .gear-spec {
+    color: #888;
+    font-size: 0.9rem;
+    margin: 0 0 0.75rem 0;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  .gear-desc {
+    color: #a0a0a0;
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .lens-list {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .lens {
+    padding: 1rem;
+    background: #1a1a1a;
+    border-left: 2px solid #d4af37;
+    border-radius: 2px;
+  }
+
+  .lens-name {
+    color: #f5f5f5;
+    font-size: 1rem;
+    margin: 0 0 0.25rem 0;
+    font-weight: 500;
+  }
+
+  .lens-spec {
+    color: #888;
+    font-size: 0.85rem;
+    margin: 0;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  .contact-links {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+  }
+
+  .contact-links a {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border: 1px solid #d4af37;
+    color: #d4af37;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .contact-links a:hover {
+    background: #d4af37;
+    color: #0a0a0a;
+  }
+
+  @media (max-width: 768px) {
+    .about-section {
+      padding: 2rem 1rem;
+    }
+
+    .about-container h1 {
+      font-size: 2rem;
+    }
+
+    .about-text h2 {
+      font-size: 1.25rem;
+    }
+  }
+</style>

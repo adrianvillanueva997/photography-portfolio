@@ -1,0 +1,124 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ProfileSection from '../components/ProfileSection.astro';
+import PhotoCard from '../components/PhotoCard.astro';
+import yaml from 'js-yaml';
+
+interface Photo {
+  id: string;
+  title: string;
+  image: string;
+  thumbnail: string;
+  metadata: {
+    camera: string;
+    lens: string;
+    settings: {
+      iso: number;
+      aperture: string;
+      shutter: string;
+      focalLength: number | string;
+    };
+    location: string;
+    dateTaken: string;
+  };
+}
+
+interface Collection {
+  collection: string;
+  description: string;
+  photos: Photo[];
+}
+
+// Load all YAML files
+const collectionFiles = import.meta.glob('../data/collections/*.yaml', { query: '?raw', import: 'default' });
+const allPhotos: Photo[] = [];
+
+for (const [_path, getContent] of Object.entries(collectionFiles)) {
+  const content = (await getContent()) as string;
+  const data = yaml.load(content) as Collection;
+  allPhotos.push(...data.photos);
+}
+
+// Shuffle photos
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+const randomizedPhotos = shuffleArray(allPhotos);
+---
+
+<Layout title="Adrian Villanueva - Photography Portfolio" description="Tokyo-based photographer showcasing urban landscapes and natural beauty. Capturing moments with Canon EOS R5.">
+  <Header currentPage="home" />
+  
+  <main class="main">
+    <ProfileSection />
+    
+    <section class="gallery-section">
+      <div class="gallery-container">
+        <div class="gallery-grid">
+          {randomizedPhotos.map(photo => (
+            <PhotoCard
+              id={photo.id}
+              title={photo.title}
+              image={photo.image}
+              thumbnail={photo.thumbnail}
+              metadata={photo.metadata}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  .main {
+    min-height: calc(100vh - 200px);
+  }
+
+  .gallery-section {
+    padding: 0 0 4rem 0;
+  }
+
+  .gallery-container {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    padding: 2rem 1rem;
+  }
+
+  @media (max-width: 1024px) {
+    .gallery-grid {
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .gallery-grid {
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      padding: 1.5rem 1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .gallery-grid {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.75rem;
+      padding: 1rem 0.75rem;
+    }
+  }
+</style>

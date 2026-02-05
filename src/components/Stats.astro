@@ -1,0 +1,95 @@
+---
+interface Props {
+  photoCount: number;
+  collectionCount: number;
+  camera: string;
+}
+
+const { photoCount, collectionCount, camera } = Astro.props;
+---
+
+<section class="stats">
+  <div class="stats-container">
+    <div class="stat-item">
+      <span class="stat-number">{photoCount}</span>
+      <span class="stat-label">Photos</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-number">{collectionCount}</span>
+      <span class="stat-label">Collections</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-label-alt">{camera}</span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .stats {
+    background: #1a1a1a;
+    border-top: 1px solid #2a2a2a;
+    border-bottom: 1px solid #2a2a2a;
+    padding: 2rem 0;
+    margin: 3rem 0;
+  }
+
+  .stats-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #d4af37;
+  }
+
+  .stat-label {
+    font-size: 0.9rem;
+    color: #a0a0a0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .stat-label-alt {
+    font-size: 0.95rem;
+    color: #a0a0a0;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 40px;
+    background: #2a2a2a;
+  }
+
+  @media (max-width: 768px) {
+    .stats-container {
+      gap: 1.5rem;
+      padding: 0 1rem;
+    }
+
+    .stat-number {
+      font-size: 1.75rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+    }
+  }
+</style>
