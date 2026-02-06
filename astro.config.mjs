@@ -6,7 +6,7 @@ import compression from 'vite-plugin-compression';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://adrianvillanueva.com',
+  site: 'https://avm.photography',
   integrations: [sitemap(), robotsTxt()],
   vite: {
     plugins: [

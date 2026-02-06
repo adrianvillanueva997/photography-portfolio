@@ -1,43 +1,28 @@
-title: Adrian Villanueva
+title: Adrian Villanueva Martinez
+
 bio:
   - section: Photographer & Explorer
     content: |
-      I'm Adrian, a Tokyo-based photographer passionate about capturing the raw beauty of urban landscapes and nature.
-      My work explores the intersection of human environments and natural elements, often focusing on subtle moments
-      that reveal the character of a place.
-  - section: Philosophy
-    content: |
-      With a background in visual storytelling, I approach photography as a way to document the world's diversity—
-      from the organized chaos of Tokyo's streets to the serene beauty of Japan's mountains and valleys.
-      Each image is a testament to the unique moments found in everyday life.
+      Hello there! I am Adrian, I am a Spanish photographer and traveler currently based in Tokyo, Japan.
+      During the day I work as a software engineer but in my free time I love to explore new places and capture moments through my camera lens. I like to focus  on the beauty of urban environments, natural landscapes and live music events.
 
 gear:
   primary:
-    name: Canon EOS R5
-    spec: 45MP Full-Frame Mirrorless | 8K Video | Advanced AF
-    description: My workhorse for studio and field work. The R5's exceptional autofocus and dynamic range make it perfect for both street and landscape photography.
+    - name: RICOH GR III
+      spec: 24.2MP APS-C Sensor | Fixed 28mm f/2
+      description: My go-to camera for street and travel photography. Compact, discreet, and capable of stunning image quality.
+    - name: iPhone 15 Pro Max
+      spec: 48MP Main | 12MP Ultra Wide | 12MP Telephoto
+      description: Versatile smartphone camera for quick shots and spontaneous moments. Great for everyday carry.
 
-  lenses:
-    - name: RF 24-70mm f/2.8L
-      spec: Standard zoom | Professional optical design
-    - name: RF 70-200mm f/2.8L
-      spec: Telephoto zoom | Excellent for compressed perspectives
-    - name: RF 35mm f/1.8 Macro
-      spec: Prime lens | Great for street and detail work
-    - name: RF 100mm f/2.8 Macro
-      spec: Macro prime | 1:1 magnification for close-ups
+  secondary: []
 
-  backup:
-    name: Canon EOS R
-    spec: 24.2MP Full-Frame Mirrorless
-    description: Reliable backup body for outdoor and travel work. Shares the same RF lens mount.
+  lenses: []
 
 contact:
   intro: Interested in collaborations, prints, or just want to chat about photography? Feel free to reach out through any of my channels.
   links:
-    - label: Portfolio
+    - label: Personal Website
       url: https://adrianvillanueva.com
     - label: Instagram
       url: https://instagram.com/dude.traveler
-    - label: Email
-      url: mailto:hello@adrianvillanueva.com
