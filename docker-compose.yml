@@ -1,5 +1,5 @@
 services:
-  avmphotography:
+  avm.photography:
     image: ghcr.io/metalops-dev/web:latest
     networks:
       - proxy
