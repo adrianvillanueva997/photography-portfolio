@@ -4,6 +4,7 @@ import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
 import PhotoCard from "../../components/PhotoCard.astro";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import { generateCollectionSchema } from "../../lib/imageMetadata.ts";
 import yaml from "js-yaml";
 
 interface Photo {
@@ -65,9 +66,22 @@ for (const [path, getContent] of Object.entries(collectionFiles)) {
 if (!data) {
 	throw new Error(`Collection ${collection} not found`);
 }
+
+// Generate JSON-LD schema for collection
+const imageUrls = data.photos.map(photo => photo.image);
+const collectionUrl = `https://avm.photography/collections/${collection}`;
+const collectionSchema = generateCollectionSchema(
+	data.collection,
+	data.description,
+	imageUrls,
+	collectionUrl
+);
 ---
 
 <Layout title={`${data.collection} - Adrian Villanueva`} description={data.description} image={data.photos[0]?.image}>
+  <!-- JSON-LD Schema for SEO -->
+  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+
   <Header currentPage="collections" />
 
   <main class="main">
