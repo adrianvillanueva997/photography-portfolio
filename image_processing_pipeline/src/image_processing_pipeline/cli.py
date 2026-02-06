@@ -53,6 +53,11 @@ def cli():
     help="Display width in pixels",
     type=int,
 )
+@click.option(
+    "--responsive",
+    is_flag=True,
+    help="Also generate 400w, 800w, 1600w variants for responsive images",
+)
 def process(
     input_path,
     output_dir,
@@ -61,6 +66,7 @@ def process(
     thumbnail_width,
     collection_width,
     display_width,
+    responsive,
 ):
     """Process a raw image file and generate responsive sizes."""
     input_file = Path(input_path)
@@ -93,6 +99,7 @@ def process(
         output_dir=output_dir,
         output_format="avif",
         sizes=sizes,
+        include_responsive_widths=responsive,
     )
 
     click.echo("✓ Images generated:")

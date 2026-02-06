@@ -2,17 +2,32 @@
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
+import OptimizedImage from "../../components/OptimizedImage.astro";
 import yaml from "js-yaml";
+
+interface Photo {
+	id?: string;
+	title: string;
+	collection?: string;
+	thumbnail: string;
+	metadata?: {
+		camera: string;
+		lens: string;
+		settings: {
+			iso: number | number[];
+			aperture: string;
+			shutter: string;
+			focalLength: string | number;
+		};
+		location: string;
+		dateTaken: string;
+	};
+}
 
 interface Collection {
 	collection: string;
 	description: string;
-	photos: Array<{
-		id: string;
-		title: string;
-		collection?: string;
-		thumbnail: string;
-	}>;
+	photos: Photo[];
 }
 
 // Load all YAML files
@@ -40,10 +55,18 @@ for (const [path, getContent] of Object.entries(collectionFiles)) {
         <p class="subtitle">Explore my photography organized by theme</p>
 
         <div class="collections-grid">
-          {collections.map((collection) => (
+          {collections.map((collection, index) => (
             <a href={`/collections/${collection.slug}`} class="collection-card">
               <div class="collection-preview">
-                <img src={collection.data.photos[0]?.collection || collection.data.photos[0]?.thumbnail} alt={collection.data.collection} />
+                <OptimizedImage
+                  src={collection.data.photos[0]?.collection || collection.data.photos[0]?.thumbnail}
+                  alt={collection.data.collection}
+                  widths={[400, 800]}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  priority={index < 3}
+                  loading={index < 3 ? "eager" : "lazy"}
+                  metadata={collection.data.photos[0]?.metadata}
+                />
                 <div class="overlay">
                   <h2>{collection.data.collection}</h2>
                   <p>{collection.data.photos.length} photos</p>
@@ -105,14 +128,16 @@ for (const [path, getContent] of Object.entries(collectionFiles)) {
   .collection-preview {
     position: relative;
     width: 100%;
-    height: 300px;
+    aspect-ratio: 3/2;
     overflow: hidden;
     border-radius: 4px;
     margin-bottom: 1rem;
     background: #1a1a1a;
+    contain: layout style;
   }
 
-  .collection-preview img {
+  .collection-preview img,
+  .collection-preview picture {
     width: 100%;
     height: 100%;
     object-fit: cover;

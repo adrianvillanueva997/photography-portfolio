@@ -1,0 +1,203 @@
+---
+/**
+ * Enhanced PhotoCard Component
+ * 
+ * - Uses OptimizedImage for responsive, multi-format delivery
+ * - Handles metadata from JSON sidecar
+ * - Proper accessibility and SEO
+ * - Supports both local and R2 URLs
+ */
+
+import OptimizedImage from "./OptimizedImage.astro";
+import MetadataCard from "./MetadataCard.astro";
+import Lightbox from "./Lightbox.astro";
+import { loadImageMetadata, formatExposureData } from "../lib/imageMetadata";
+
+interface Props {
+  id: string;
+  title: string;
+  image: string; // display size URL
+  collection?: string; // collection preview size URL
+  thumbnail: string; // thumbnail size URL
+  metadata?: {
+    camera: string;
+    lens: string;
+    settings: {
+      iso: number[];
+      aperture: string;
+      shutter: string;
+      focalLength: string;
+    };
+    location: string;
+    dateTaken: string;
+  };
+  priority?: boolean; // For LCP optimization
+  baseUrl?: string; // For R2 or custom domain
+}
+
+const {
+  id,
+  title,
+  image,
+  collection,
+  thumbnail,
+  metadata,
+  priority = false,
+  baseUrl = "/photos",
+} = Astro.props;
+
+// Extract image stem for metadata loading
+const imageStem = image.split("/").pop()?.replace(/-(display|collection|thumbnail)\.(avif|webp|jpg)$/i, "") || id;
+
+// Load metadata from JSON sidecar if not provided
+let fullMetadata = metadata;
+if (!fullMetadata) {
+  try {
+    const loaded = await loadImageMetadata(imageStem);
+    if (loaded) {
+      fullMetadata = {
+        camera: `${loaded.camera_make || ""} ${loaded.camera_model || ""}`.trim(),
+        lens: loaded.lens || "Unknown",
+        settings: {
+          iso: Array.isArray(loaded.iso) ? loaded.iso : [loaded.iso || 0],
+          aperture: loaded.aperture || "Unknown",
+          shutter: loaded.shutter_speed || "Unknown",
+          focalLength: loaded.focal_length_35mm || "Unknown",
+        },
+        location: "Unknown",
+        dateTaken: loaded.date_taken || "",
+      };
+    }
+  } catch (e) {
+    console.warn(`Could not load metadata for ${imageStem}`);
+  }
+}
+---
+
+<div class="photo-card" data-photo-id={id}>
+  <div class="photo-wrapper" data-lightbox-trigger={id} role="button" tabindex="0" aria-label={`View ${title} in fullscreen`}>
+    <!-- Responsive image for grid/preview -->
+    <OptimizedImage
+      src={collection || thumbnail}
+      alt={title}
+      widths={[350, 700]}
+      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+      priority={priority}
+      loading={priority ? "eager" : "lazy"}
+      decoding={priority ? "sync" : "async"}
+      class="preview-image"
+      metadata={fullMetadata}
+    />
+
+    <div class="overlay">
+      <h3>{title}</h3>
+    </div>
+
+    {fullMetadata && (
+      <div class="metadata-wrapper">
+        <MetadataCard metadata={fullMetadata} />
+      </div>
+    )}
+  </div>
+</div>
+
+<!-- Lightbox with full-resolution image -->
+<Lightbox id={id} image={image} title={title} metadata={fullMetadata} />
+
+<script define:vars={{ id }}>
+  const trigger = document.querySelector(`[data-lightbox-trigger="${id}"]`);
+
+  function openLightbox() {
+    const lightbox = document.getElementById(`lightbox-${id}`);
+    if (lightbox) {
+      lightbox.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+  }
+
+  trigger?.addEventListener("click", openLightbox);
+  trigger?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      openLightbox();
+    }
+  });
+</script>
+
+<style>
+  .photo-card {
+    width: 100%;
+    overflow: hidden;
+    height: fit-content;
+  }
+
+  .photo-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    background: #1a1a1a;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .photo-wrapper:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.15);
+  }
+
+  .photo-wrapper:focus-visible {
+    outline: 2px solid #d4af37;
+    outline-offset: 2px;
+  }
+
+  .preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Optimize rendering */
+    will-change: transform;
+    contain: layout style paint;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: flex-end;
+    padding: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .photo-wrapper:hover .overlay {
+    opacity: 1;
+  }
+
+  .overlay h3 {
+    margin: 0;
+    color: #f5f5f5;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .metadata-wrapper {
+    position: absolute;
+    top: 0;
+    right: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .photo-wrapper:hover .metadata-wrapper {
+    opacity: 1;
+  }
+
+  /* Loading optimization: Use CSS containment */
+  .photo-card {
+    contain: content;
+  }
+</style>

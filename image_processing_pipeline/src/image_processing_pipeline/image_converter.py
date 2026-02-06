@@ -103,6 +103,7 @@ class ImageConverter:
         output_dir: str,
         output_format: str = "avif",
         sizes: Optional[dict[str, int]] = None,
+        include_responsive_widths: bool = False,
     ) -> dict[str, str]:
         """
         Generate multiple responsive image sizes from a single source.
@@ -113,6 +114,7 @@ class ImageConverter:
             output_format: Output format (default: avif)
             sizes: Dict of size names to widths. Defaults to:
                    {'thumbnail': 350, 'collection': 700, 'display': 1400}
+            include_responsive_widths: If True, also generate 400w, 800w, 1600w variants
 
         Returns:
             Dictionary mapping size names to output paths
@@ -143,5 +145,18 @@ class ImageConverter:
                 )
             except IOError as e:
                 raise IOError(f"Failed to generate {size_name} size: {str(e)}") from e
+
+        # Generate additional responsive widths for srcset
+        if include_responsive_widths:
+            responsive_sizes = {"400w": 400, "800w": 800, "1600w": 1600}
+            for width_label, width_px in responsive_sizes.items():
+                output_filename = f"{stem}-{width_label}.{output_format}"
+                output_path = str(output_dir_path / output_filename)
+                try:
+                    results[width_label] = self.resize_and_convert(
+                        photo, width_px, output_path, output_format
+                    )
+                except IOError as e:
+                    raise IOError(f"Failed to generate {width_label} size: {str(e)}") from e
 
         return results

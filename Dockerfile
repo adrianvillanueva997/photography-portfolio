@@ -20,7 +20,6 @@ RUN find /app/dist -type f -name "*.svg" -exec chmod 644 {} \;
 # --- Production Stage ---
 FROM nginx:1.29-bookworm AS production
 COPY infra/nginx.conf /etc/nginx/nginx.conf
-COPY infra/nginx-cache.conf /etc/nginx/nginx-cache.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
