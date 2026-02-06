@@ -41,7 +41,9 @@ const statsData = yaml.load(statsFile.default) as {
 		label: string;
 		title: string;
 		text?: string;
-		description: string;
+		gear?: Array<{ name: string; type: string; description?: string }>;
+		locations?: Array<{ name: string; description?: string }>;
+		description?: string;
 	}>;
 };
 
@@ -71,22 +73,37 @@ const collectionCount = Object.keys(collectionFiles).length;
         <h1>{statsData.title}</h1>
         <p class="subtitle">{statsData.subtitle}</p>
 
-        <Stats photoCount={photoCount} collectionCount={collectionCount} camera="Canon EOS R5" />
+        <Stats photoCount={photoCount} collectionCount={collectionCount} />
 
         <div class="stats-details">
           {statsData.details.map((detail) => (
             <div class="detail-card">
               <h3>{detail.title}</h3>
-              {detail.label === 'Gear' && (
-                <p class="detail-text">Canon EOS R5 with RF mount lenses</p>
+              {detail.label === 'Gear' && detail.gear && detail.gear.length > 0 && (
+                <ul class="gear-list">
+                  {detail.gear.map((item) => (
+                    <li class="gear-item">
+                      <span class="gear-name">{item.name}</span>
+                      {item.type && <span class="gear-type">{item.type}</span>}
+                      {item.description && <p class="gear-description">{item.description}</p>}
+                    </li>
+                  ))}
+                </ul>
               )}
-              {detail.label === 'Locations' && (
-                <p class="detail-text">{detail.text}</p>
+              {detail.label === 'Locations' && detail.locations && detail.locations.length > 0 && (
+                <ul class="locations-list">
+                  {detail.locations.map((location) => (
+                    <li class="location-item">
+                      <span class="location-name">{location.name}</span>
+                      {location.description && <p class="location-description">{location.description}</p>}
+                    </li>
+                  ))}
+                </ul>
               )}
               {detail.label === 'Collections' && (
                 <p class="detail-text">{collectionCount} Active Collections</p>
               )}
-              <p class="detail-desc">{detail.description}</p>
+              {detail.description && <p class="detail-desc">{detail.description}</p>}
             </div>
           ))}
         </div>
@@ -168,6 +185,77 @@ const collectionCount = Object.keys(collectionFiles).length;
     color: #999;
     font-size: 0.95rem;
     line-height: 1.5;
+  }
+
+  .gear-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.75rem 0 1rem 0;
+  }
+
+  .gear-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 1.25rem;
+    color: #f5f5f5;
+    font-size: 0.95rem;
+  }
+
+  .gear-name {
+    font-weight: 500;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .gear-type {
+    font-size: 0.8rem;
+    color: #999;
+    padding: 0.2rem 0.4rem;
+    background: #2a2a2a;
+    border-radius: 2px;
+    width: fit-content;
+  }
+
+  .gear-description {
+    font-size: 0.9rem;
+    color: #999;
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .locations-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.75rem 0 1rem 0;
+  }
+
+  .location-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 1.25rem;
+    color: #f5f5f5;
+    font-size: 0.95rem;
+  }
+
+  .location-name {
+    font-weight: 500;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .location-description {
+    font-size: 0.9rem;
+    color: #999;
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   @media (max-width: 768px) {

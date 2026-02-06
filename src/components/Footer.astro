@@ -1,9 +1,16 @@
 ---
+const currentYear = new Date().getFullYear();
 ---
 
 <footer class="footer">
   <div class="footer-container">
-    <p>&copy; 2025 Adrian Villanueva. All rights reserved.</p>
+    <div class="footer-content">
+      <p>&copy; {currentYear} Adrian Villanueva Martinez. All rights reserved.</p>
+      <p class="license-text">
+        This website is licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener noreferrer">GNU GPL v3</a>.
+        Photos must credit Adrian Villanueva Martinez as the source when used.
+      </p>
+    </div>
   </div>
 </footer>
 
@@ -23,10 +30,30 @@
     align-items: center;
   }
 
+  .footer-content {
+    text-align: center;
+  }
+
   .footer p {
     color: #666;
     font-size: 0.9rem;
-    margin: 0;
+    margin: 0.5rem 0;
+  }
+
+  .license-text {
+    font-size: 0.85rem !important;
+    color: #555;
+  }
+
+  .license-text a {
+    color: #d4af37;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .license-text a:hover {
+    color: #e8c547;
+    text-decoration: underline;
   }
 
   @media (max-width: 640px) {

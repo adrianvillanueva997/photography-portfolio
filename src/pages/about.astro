@@ -11,9 +11,10 @@ const aboutData = yaml.load(aboutFile.default) as {
 	title: string;
 	bio: Array<{ section: string; content: string }>;
 	gear: {
-		primary: { name: string; spec: string; description: string };
-		lenses: Array<{ name: string; spec: string }>;
-		backup: { name: string; spec: string; description: string };
+		primary?: Array<{ name: string; spec: string; description: string }>;
+		secondary?: Array<{ name: string; spec: string; description: string }>;
+		lenses?: Array<{ name: string; spec: string }>;
+		backup?: { name: string; spec: string; description: string };
 	};
 	contact: { intro: string; links: Array<{ label: string; url: string }> };
 };
@@ -40,31 +41,58 @@ const aboutData = yaml.load(aboutFile.default) as {
 
             <h2>Camera Equipment</h2>
             <div class="gear-section">
-              <div class="gear-item">
-                <h3>Primary Camera</h3>
-                <p class="gear-name">{aboutData.gear.primary.name}</p>
-                <p class="gear-spec">{aboutData.gear.primary.spec}</p>
-                <p class="gear-desc">{aboutData.gear.primary.description}</p>
-              </div>
-
-              <div class="gear-item">
-                <h3>Lenses</h3>
-                <div class="lens-list">
-                  {aboutData.gear.lenses.map((lens) => (
-                    <div class="lens">
-                      <p class="lens-name">{lens.name}</p>
-                      <p class="lens-spec">{lens.spec}</p>
-                    </div>
-                  ))}
+              {aboutData.gear.primary && aboutData.gear.primary.length > 0 && (
+                <div class="gear-item">
+                  <h3>Primary Camera</h3>
+                  <div class="gear-list">
+                    {aboutData.gear.primary.map((camera) => (
+                      <div class="camera">
+                        <p class="gear-name">{camera.name}</p>
+                        <p class="gear-spec">{camera.spec}</p>
+                        <p class="gear-desc">{camera.description}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div class="gear-item">
-                <h3>Backup & Accessories</h3>
-                <p class="gear-name">{aboutData.gear.backup.name}</p>
-                <p class="gear-spec">{aboutData.gear.backup.spec}</p>
-                <p class="gear-desc">{aboutData.gear.backup.description}</p>
-              </div>
+              {aboutData.gear.secondary && aboutData.gear.secondary.length > 0 && (
+                <div class="gear-item">
+                  <h3>Secondary Camera</h3>
+                  <div class="gear-list">
+                    {aboutData.gear.secondary.map((camera) => (
+                      <div class="camera">
+                        <p class="gear-name">{camera.name}</p>
+                        <p class="gear-spec">{camera.spec}</p>
+                        <p class="gear-desc">{camera.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {aboutData.gear.lenses && aboutData.gear.lenses.length > 0 && (
+                <div class="gear-item">
+                  <h3>Lenses</h3>
+                  <div class="lens-list">
+                    {aboutData.gear.lenses.map((lens) => (
+                      <div class="lens">
+                        <p class="lens-name">{lens.name}</p>
+                        <p class="lens-spec">{lens.spec}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {aboutData.gear.backup && (
+                <div class="gear-item">
+                  <h3>Backup & Accessories</h3>
+                  <p class="gear-name">{aboutData.gear.backup.name}</p>
+                  <p class="gear-spec">{aboutData.gear.backup.spec}</p>
+                  <p class="gear-desc">{aboutData.gear.backup.description}</p>
+                </div>
+              )}
             </div>
 
             <h2>Get in Touch</h2>

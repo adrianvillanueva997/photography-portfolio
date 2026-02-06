@@ -10,6 +10,7 @@ interface Collection {
 	photos: Array<{
 		id: string;
 		title: string;
+		collection?: string;
 		thumbnail: string;
 	}>;
 }
@@ -42,7 +43,7 @@ for (const [path, getContent] of Object.entries(collectionFiles)) {
           {collections.map((collection) => (
             <a href={`/collections/${collection.slug}`} class="collection-card">
               <div class="collection-preview">
-                <img src={collection.data.photos[0]?.thumbnail} alt={collection.data.collection} />
+                <img src={collection.data.photos[0]?.collection || collection.data.photos[0]?.thumbnail} alt={collection.data.collection} />
                 <div class="overlay">
                   <h2>{collection.data.collection}</h2>
                   <p>{collection.data.photos.length} photos</p>

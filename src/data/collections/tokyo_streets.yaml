@@ -1,0 +1,19 @@
+collection: Tokyo Streets
+description: Exploring the vibrant streets of Tokyo
+photos:
+  - id: photo-001
+    title: Passing reader in 神保町 (Jinbōchō)
+    image: https://cdn.avm.photography/collections/tokyo/R0012164-display.avif
+    collection: https://cdn.avm.photography/collections/tokyo/R0012164-collection.avif
+    thumbnail: https://cdn.avm.photography/collections/tokyo/R0012164-thumbnail.avif
+    metadata:
+      camera: RICOH IMAGING COMPANY, LTD. RICOH GR III
+      lens: RICOH GR LENS 18.3mm F2.8
+      settings:
+        iso:
+          - 200
+        aperture: f/4.0
+        shutter: 1/60
+        focalLength: 28mm
+      location: Jinbōchō, Chiyoda City, Tokyo, Japan
+      dateTaken: 2025-08-15

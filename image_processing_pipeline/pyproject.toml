@@ -1,0 +1,22 @@
+[project]
+name = "image-processing-pipeline"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "adrianvillanueva997", email = "adrianvillanueva997@gmail.com" },
+]
+requires-python = ">=3.13"
+dependencies = [
+    "exifread>=3.5.1",
+    "pyvips>=3.1.1",
+    "click>=8.1.0",
+    "pyyaml>=6.0",
+]
+
+[project.scripts]
+image-pipeline = "image_processing_pipeline.cli:cli"
+
+[build-system]
+requires = ["uv_build>=0.9.20,<0.10.0"]
+build-backend = "uv_build"
