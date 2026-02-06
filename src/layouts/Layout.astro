@@ -1,4 +1,6 @@
 ---
+import mePhoto from "../assets/me-display.avif";
+
 interface Props {
 	title: string;
 	description?: string;
@@ -9,7 +11,7 @@ interface Props {
 const {
 	title,
 	description = "Spanish Tokyo-based photographer capturing urban landscapes, natural beauty and live music events.",
-	image = "https://att-japan.net/wp-content/uploads/2023/06/pixta_97309535_M.webp",
+	image = mePhoto.src,
 	url = Astro.url.pathname,
 } = Astro.props;
 const siteUrl = "https://avm.photography";
