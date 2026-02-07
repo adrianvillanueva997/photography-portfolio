@@ -1,4 +1,4 @@
-FROM node:22.22.0-bookworm-slim AS builder
+FROM node:24.13.0-bookworm-slim AS builder
 ENV NODE_OPTIONS="--max-old-space-size=6144"
 # 1. Enable Corepack
 RUN corepack enable && corepack prepare pnpm@latest --activate
