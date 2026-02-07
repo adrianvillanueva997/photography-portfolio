@@ -43,6 +43,15 @@ for (const [path, getContent] of Object.entries(collectionFiles)) {
 	const slug = path.split("/").pop()?.replace(".yaml", "") || "";
 	collections.push({ data, slug });
 }
+
+// Calculate stats
+const totalPhotos = collections.reduce(
+	(sum, c) => sum + c.data.photos.length,
+	0,
+);
+const sortedCollections = collections.sort(
+	(a, b) => b.data.photos.length - a.data.photos.length,
+);
 ---
 
 <Layout title="Collections - Adrian Villanueva" description="Browse photography collections: Urban landscapes and nature photography from Tokyo.">
@@ -51,29 +60,48 @@ for (const [path, getContent] of Object.entries(collectionFiles)) {
   <main class="main">
     <section class="collections-section">
       <div class="collections-container">
-        <h1>Collections</h1>
-        <p class="subtitle">Explore my photography organized by theme</p>
+        <div class="header-block">
+          <div>
+            <h1>Collections</h1>
+            <p class="subtitle">Explore my photography organized by theme</p>
+          </div>
+          <div class="stats-bar">
+            <div class="stat">
+              <span class="stat-number">{collections.length}</span>
+              <span class="stat-label">Collections</span>
+            </div>
+            <div class="stat">
+              <span class="stat-number">{totalPhotos}</span>
+              <span class="stat-label">Photos</span>
+            </div>
+          </div>
+        </div>
 
         <div class="collections-grid">
-          {collections.map((collection, index) => (
+          {sortedCollections.map((collection, index) => (
             <a href={`/collections/${collection.slug}`} class="collection-card">
               <div class="collection-preview">
                 <OptimizedImage
-                  src={collection.data.photos[0]?.thumbnail}
+                  src={collection.data.photos[0]?.thumbnail ?? ""}
                   alt={collection.data.collection}
-                  widths={[400, 800]}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  widths={[]}
                   priority={index < 3}
                   loading={index < 3 ? "eager" : "lazy"}
                   metadata={collection.data.photos[0]?.metadata}
                 />
                 <div class="overlay">
                   <h2>{collection.data.collection}</h2>
-                  <p>{collection.data.photos.length} photos</p>
+                  <div class="overlay-footer">
+                    <p>{collection.data.photos.length} photos</p>
+                    <span class="view-btn">View Collection →</span>
+                  </div>
                 </div>
               </div>
               <div class="collection-info">
-                <h3>{collection.data.collection}</h3>
+                <div class="collection-header">
+                  <h3>{collection.data.collection}</h3>
+                  <span class="photo-count">{collection.data.photos.length}</span>
+                </div>
                 <p>{collection.data.description}</p>
               </div>
             </a>
@@ -97,6 +125,14 @@ for (const [path, getContent] of Object.entries(collectionFiles)) {
     padding: 4rem 2rem;
   }
 
+  .header-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 3rem;
+    gap: 2rem;
+  }
+
   h1 {
     font-size: 2.5rem;
     color: #f5f5f5;
@@ -106,23 +142,61 @@ for (const [path, getContent] of Object.entries(collectionFiles)) {
   .subtitle {
     color: #a0a0a0;
     font-size: 1.1rem;
-    margin: 0 0 3rem 0;
+    margin: 0;
+  }
+
+  .stats-bar {
+    display: flex;
+    gap: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    white-space: nowrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .stat-number {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #f5f5f5;
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+    color: #a0a0a0;
+    margin-top: 0.25rem;
   }
 
   .collections-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 2.5rem;
   }
 
   .collection-card {
     text-decoration: none;
     color: inherit;
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .collection-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
   }
 
   .collection-preview {
@@ -130,8 +204,7 @@ for (const [path, getContent] of Object.entries(collectionFiles)) {
     width: 100%;
     aspect-ratio: 3/2;
     overflow: hidden;
-    border-radius: 4px;
-    margin-bottom: 1rem;
+    border-radius: 6px 6px 0 0;
     background: #1a1a1a;
     contain: layout style;
   }
@@ -141,11 +214,12 @@ for (const [path, getContent] of Object.entries(collectionFiles)) {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: transform 0.4s ease;
   }
 
-  .collection-card:hover .collection-preview img {
-    transform: scale(1.05);
+  .collection-card:hover .collection-preview img,
+  .collection-card:hover .collection-preview picture {
+    transform: scale(1.08);
   }
 
   .overlay {
@@ -154,10 +228,10 @@ for (const [path, getContent] of Object.entries(collectionFiles)) {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.9));
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.7) 100%);
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: space-between;
     padding: 2rem;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -169,8 +243,16 @@ for (const [path, getContent] of Object.entries(collectionFiles)) {
 
   .overlay h2 {
     color: #f5f5f5;
-    margin: 0 0 0.5rem 0;
-    font-size: 1.5rem;
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 600;
+  }
+
+  .overlay-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
   }
 
   .overlay p {
@@ -179,25 +261,90 @@ for (const [path, getContent] of Object.entries(collectionFiles)) {
     font-size: 0.95rem;
   }
 
+  .view-btn {
+    display: inline-block;
+    color: #f5f5f5;
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+  }
+
+  .collection-card:hover .view-btn {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .collection-info {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .collection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
   .collection-info h3 {
     color: #f5f5f5;
-    margin: 0 0 0.5rem 0;
+    margin: 0;
     font-size: 1.3rem;
+    font-weight: 600;
+    flex: 1;
+  }
+
+  .photo-count {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.1);
+    color: #a0a0a0;
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.15);
   }
 
   .collection-info p {
     color: #a0a0a0;
     margin: 0;
-    line-height: 1.5;
+    line-height: 1.6;
+    font-size: 0.95rem;
   }
 
   @media (max-width: 768px) {
+    .header-block {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .stats-bar {
+      width: 100%;
+      justify-content: flex-start;
+    }
+
     .collections-grid {
       grid-template-columns: 1fr;
+      gap: 2rem;
     }
 
     h1 {
       font-size: 2rem;
+    }
+
+    .collection-header {
+      flex-wrap: wrap;
+    }
+
+    .photo-count {
+      flex-basis: 100%;
+      width: fit-content;
     }
   }
 </style>

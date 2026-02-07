@@ -52,6 +52,7 @@ const ext = src.match(/\.(avif|webp|jpg|jpeg|png)$/i)?.[1]?.toLowerCase() || "av
 
 // Build srcset for each width
 const buildSrcset = (format: string) => {
+  if (widths.length === 0) return "";
   return widths
     .map((width) => {
       const filename = `${basePath}-${width}.${format}`;
@@ -61,8 +62,8 @@ const buildSrcset = (format: string) => {
 };
 
 // Default display width (largest for <img> fallback)
-const defaultWidth = Math.max(...widths);
-const defaultSrc = `${basePath}-${defaultWidth}.${ext}`;
+const defaultWidth = widths.length > 0 ? Math.max(...widths) : undefined;
+const defaultSrc = defaultWidth ? `${basePath}-${defaultWidth}.${ext}` : src;
 const avifSrcset = buildSrcset("avif");
 const webpSrcset = buildSrcset("webp");
 
