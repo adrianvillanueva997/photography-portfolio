@@ -8,12 +8,12 @@ photos:
     thumbnail: https://cdn.avm.photography/collections/tokyo/R0012164-thumbnail.avif
     metadata:
       camera: RICOH IMAGING COMPANY, LTD. RICOH GR III
-      lens: RICOH GR LENS 18.3mm F2.8
+      lens: RICOH GR LENS 28mm F2.8
       settings:
         iso:
           - 200
         aperture: f/4.0
         shutter: 1/60
         focalLength: 28mm
-      location: Jinbōchō, Chiyoda City, Tokyo, Japan
-      dateTaken: 2025-08-15
+      location: Jinbōchō, Tokyo, Japan
+      dateTaken: 2021:09:19

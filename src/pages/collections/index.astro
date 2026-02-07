@@ -59,7 +59,7 @@ for (const [path, getContent] of Object.entries(collectionFiles)) {
             <a href={`/collections/${collection.slug}`} class="collection-card">
               <div class="collection-preview">
                 <OptimizedImage
-                  src={collection.data.photos[0]?.collection || collection.data.photos[0]?.thumbnail}
+                  src={collection.data.photos[0]?.thumbnail}
                   alt={collection.data.collection}
                   widths={[400, 800]}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
