@@ -45,9 +45,12 @@ for (const [path, getContent] of Object.entries(collectionFiles)) {
 }
 
 // Calculate stats
-const totalPhotos = collections.reduce((sum, c) => sum + c.data.photos.length, 0);
-const sortedCollections = collections.sort((a, b) => 
-	b.data.photos.length - a.data.photos.length
+const totalPhotos = collections.reduce(
+	(sum, c) => sum + c.data.photos.length,
+	0,
+);
+const sortedCollections = collections.sort(
+	(a, b) => b.data.photos.length - a.data.photos.length,
 );
 ---
 
@@ -79,7 +82,7 @@ const sortedCollections = collections.sort((a, b) =>
             <a href={`/collections/${collection.slug}`} class="collection-card">
               <div class="collection-preview">
                 <OptimizedImage
-                  src={collection.data.photos[0]?.collection}
+                  src={collection.data.photos[0]?.thumbnail ?? ""}
                   alt={collection.data.collection}
                   widths={[]}
                   priority={index < 3}
