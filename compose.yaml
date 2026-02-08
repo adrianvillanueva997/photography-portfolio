@@ -1,6 +1,7 @@
 services:
   avmphotography:
     image: ghcr.io/adrianvillanueva997/photography-portfolio:latest
+    restart: unless-stopped
     networks:
       - proxy
     ports:
@@ -30,4 +31,3 @@ services:
 networks:
   proxy:
     external: true
-
