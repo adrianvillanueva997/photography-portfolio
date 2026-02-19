@@ -40,9 +40,8 @@ const { metadata } = Astro.props;
 
 <style>
   .metadata-card {
-    background: rgba(10, 10, 10, 0.95);
-    border: 1px solid #2a2a2a;
-    border-radius: 4px;
+    background: rgba(12, 11, 9, 0.95);
+    border: 1px solid var(--color-border);
     padding: 1rem;
     backdrop-filter: blur(10px);
   }
@@ -52,7 +51,7 @@ const { metadata } = Astro.props;
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 0.75rem;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
   }
 
   .metadata-row:last-child {
@@ -66,8 +65,10 @@ const { metadata } = Astro.props;
   }
 
   .value {
-    color: #a0a0a0;
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
     word-break: break-word;
   }
 </style>

@@ -120,12 +120,15 @@ const aboutData = yaml.load(aboutFile.default) as {
     max-width: 900px;
     margin: 0 auto;
     padding: 4rem 2rem;
+    animation: fadeInUp 0.6s ease-out;
   }
 
   .about-container h1 {
-    font-size: 2.5rem;
-    color: #f5f5f5;
+    font-family: var(--font-serif);
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    color: var(--color-text);
     margin: 0 0 3rem 0;
+    font-weight: 500;
   }
 
   .about-content {
@@ -134,19 +137,24 @@ const aboutData = yaml.load(aboutFile.default) as {
   }
 
   .about-text {
-    color: #a0a0a0;
+    color: var(--color-text-secondary);
     line-height: 1.8;
+    font-weight: 300;
   }
 
   .about-text h2 {
-    color: #f5f5f5;
-    font-size: 1.5rem;
-    margin: 2.5rem 0 1rem 0;
+    color: var(--color-text);
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    margin: 3rem 0 1rem 0;
+    font-weight: 500;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
   }
 
   .about-text p {
     margin: 0 0 1.5rem 0;
-    font-size: 1.05rem;
+    font-size: 1rem;
   }
 
   .gear-list {
@@ -157,13 +165,13 @@ const aboutData = yaml.load(aboutFile.default) as {
 
   .gear-list li {
     padding: 0.75rem 0;
-    color: #a0a0a0;
-    font-size: 1.05rem;
+    color: var(--color-text-secondary);
+    font-size: 1rem;
   }
 
   .gear-list strong {
-    color: #f5f5f5;
-    font-weight: 600;
+    color: var(--color-text);
+    font-weight: 500;
   }
 
   .gear-section {
@@ -173,33 +181,38 @@ const aboutData = yaml.load(aboutFile.default) as {
   }
 
   .gear-item h3 {
-    color: #d4af37;
-    font-size: 1.1rem;
+    color: var(--color-primary);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.2em;
     margin: 0 0 1rem 0;
-    font-weight: 600;
+    font-weight: 400;
   }
 
   .gear-name {
-    color: #f5f5f5;
-    font-size: 1.15rem;
+    color: var(--color-text);
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
     margin: 0 0 0.25rem 0;
-    font-weight: 600;
+    font-weight: 500;
   }
 
   .gear-spec {
-    color: #888;
-    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    font-size: 0.8rem;
     margin: 0 0 0.75rem 0;
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-family: var(--font-mono);
+    letter-spacing: 0.05em;
+    opacity: 0.7;
   }
 
   .gear-desc {
-    color: #a0a0a0;
+    color: var(--color-text-secondary);
     font-size: 0.95rem;
     margin: 0;
     line-height: 1.6;
+    font-weight: 300;
   }
 
   .lens-list {
@@ -208,62 +221,107 @@ const aboutData = yaml.load(aboutFile.default) as {
   }
 
   .lens {
-    padding: 1rem;
-    background: #1a1a1a;
-    border-left: 2px solid #d4af37;
-    border-radius: 2px;
+    padding: 1rem 1.25rem;
+    background: var(--color-bg-card);
+    border-left: 1px solid var(--color-primary-dim);
   }
 
   .lens-name {
-    color: #f5f5f5;
+    color: var(--color-text);
+    font-family: var(--font-serif);
     font-size: 1rem;
     margin: 0 0 0.25rem 0;
     font-weight: 500;
   }
 
   .lens-spec {
-    color: #888;
-    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    font-size: 0.8rem;
     margin: 0;
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-family: var(--font-mono);
+    letter-spacing: 0.05em;
+    opacity: 0.7;
   }
 
   .contact-links {
     display: flex;
-    gap: 1.5rem;
+    gap: 1rem;
     flex-wrap: wrap;
     margin-top: 1.5rem;
   }
 
   .contact-links a {
     display: inline-block;
-    padding: 0.75rem 1.5rem;
+    padding: 0.65rem 1.25rem;
     background: transparent;
-    border: 1px solid #d4af37;
-    color: #d4af37;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
     text-decoration: none;
-    border-radius: 4px;
-    transition: all 0.2s;
-    font-size: 0.95rem;
-    font-weight: 500;
+    transition: all 0.3s ease;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
 
   .contact-links a:hover {
-    background: #d4af37;
-    color: #0a0a0a;
+    border-color: var(--color-primary-dim);
+    color: var(--color-text);
+    background: rgba(200, 164, 90, 0.05);
   }
 
   @media (max-width: 768px) {
     .about-section {
-      padding: 2rem 1rem;
+      padding: 2rem 1.25rem;
     }
 
     .about-container h1 {
-      font-size: 2rem;
+      margin-bottom: 2rem;
     }
 
     .about-text h2 {
-      font-size: 1.25rem;
+      font-size: 1.2rem;
+      margin: 2rem 0 0.75rem 0;
+    }
+
+    .contact-links {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .contact-links a {
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .about-section {
+      padding: 1.5rem 1rem;
+    }
+
+    .about-container h1 {
+      margin-bottom: 1.5rem;
+    }
+
+    .about-text p {
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .gear-name {
+      font-size: 1rem;
+    }
+
+    .gear-desc {
+      font-size: 0.85rem;
+    }
+
+    .lens {
+      padding: 0.75rem 1rem;
+    }
+
+    .lens-name {
+      font-size: 0.9rem;
     }
   }
 </style>

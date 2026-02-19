@@ -1,5 +1,4 @@
 ---
-import MetadataCard from "./MetadataCard.astro";
 import Lightbox from "./Lightbox.astro";
 
 interface Props {
@@ -26,12 +25,23 @@ const { id, title, image, thumbnail, metadata } = Astro.props;
 
 <div class="photo-card">
   <div class="photo-wrapper" data-lightbox-trigger={id} role="button" tabindex="0" aria-label={`View ${title} in fullscreen`}>
-    <img src={thumbnail} alt={title} loading="lazy" />
-    <div class="overlay">
-      <h3>{title}</h3>
+    <div class="photo-inner">
+      <img src={thumbnail} alt={title} loading="lazy" />
+      <div class="overlay">
+        <div class="overlay-top">
+          <span class="film-code">{metadata.settings.aperture}</span>
+          <span class="film-code">ISO {metadata.settings.iso}</span>
+        </div>
+        <div class="overlay-bottom">
+          <h3>{title}</h3>
+          <span class="film-location">{metadata.location}</span>
+        </div>
+      </div>
     </div>
-    <div class="metadata-wrapper">
-      <MetadataCard metadata={metadata} />
+    <div class="film-edge" aria-hidden="true">
+      <span class="film-edge-text">{metadata.camera}</span>
+      <span class="film-edge-dot"></span>
+      <span class="film-edge-text">{metadata.settings.shutter}</span>
     </div>
   </div>
 </div>
@@ -70,20 +80,33 @@ const { id, title, image, thumbnail, metadata } = Astro.props;
     width: 100%;
     height: auto;
     overflow: hidden;
-    background: #1a1a1a;
     cursor: pointer;
-    border-radius: 2px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+
+  .photo-wrapper:hover {
+    border-color: var(--color-border-light);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .photo-inner {
+    position: relative;
+    overflow: hidden;
   }
 
   img {
     width: 100%;
     height: auto;
     display: block;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), filter 0.6s ease;
+    filter: contrast(1.02) saturate(0.95);
   }
 
   .photo-wrapper:hover img {
-    transform: scale(1.08);
+    transform: scale(1.04);
+    filter: contrast(1.05) saturate(1);
   }
 
   .overlay {
@@ -92,42 +115,111 @@ const { id, title, image, thumbnail, metadata } = Astro.props;
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.8));
+    background: linear-gradient(
+      to bottom,
+      rgba(12, 11, 9, 0.3) 0%,
+      transparent 30%,
+      transparent 50%,
+      rgba(12, 11, 9, 0.85) 100%
+    );
     display: flex;
-    align-items: flex-end;
-    padding: 1.5rem;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1rem;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.4s ease;
   }
 
   .photo-wrapper:hover .overlay {
     opacity: 1;
   }
 
+  .overlay-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .film-code {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--color-primary);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+
+  .overlay-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
   .overlay h3 {
-    color: #f5f5f5;
+    color: var(--color-text);
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 500;
+    font-family: var(--font-serif);
   }
 
-  .metadata-wrapper {
-    position: absolute;
-    bottom: 1rem;
-    right: 1rem;
+  .film-location {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--color-text-secondary);
+    letter-spacing: 0.08em;
+  }
+
+  .film-edge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    background: var(--color-bg-card);
     opacity: 0;
-    transform: translateY(10px);
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease;
   }
 
-  .photo-wrapper:hover .metadata-wrapper {
+  .photo-wrapper:hover .film-edge {
     opacity: 1;
-    transform: translateY(0);
+  }
+
+  .film-edge-text {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    color: var(--color-text-secondary);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  .film-edge-dot {
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: var(--color-border-light);
   }
 
   @media (max-width: 768px) {
-    .metadata-wrapper {
+    .film-edge {
+      display: none;
+    }
+
+    .overlay {
+      padding: 0.5rem 0.75rem;
+    }
+
+    .overlay h3 {
       font-size: 0.75rem;
+    }
+
+    .film-location {
+      font-size: 0.55rem;
+    }
+
+    .film-code {
+      font-size: 0.5rem;
     }
   }
 </style>
