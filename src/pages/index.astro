@@ -64,6 +64,13 @@ const randomizedPhotos = shuffleArray(allPhotos);
     <ProfileSection />
 
     <section class="gallery-section">
+      <div class="gallery-header">
+        <div class="gallery-tag">
+          <span class="tag-line"></span>
+          <span class="tag-text">Selected Works</span>
+        </div>
+        <span class="gallery-count">{randomizedPhotos.length} photographs</span>
+      </div>
       <div class="gallery-container">
         <div class="gallery-grid">
           {randomizedPhotos.map(photo => (
@@ -92,9 +99,46 @@ const randomizedPhotos = shuffleArray(allPhotos);
     padding: 0 0 4rem 0;
   }
 
+  .gallery-header {
+    padding: 0 2rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .gallery-tag {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .tag-line {
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--color-primary);
+  }
+
+  .tag-text {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+  }
+
+  .gallery-count {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--color-text-secondary);
+    opacity: 0.5;
+  }
+
   .gallery-container {
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
+    width: 100%;
+    overflow: hidden;
   }
 
   .gallery-grid {
@@ -112,16 +156,37 @@ const randomizedPhotos = shuffleArray(allPhotos);
 
   @media (max-width: 768px) {
     .gallery-grid {
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      padding: 1.5rem 1rem;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      padding: 1.25rem 1rem;
+    }
+
+    .gallery-header {
+      padding: 0 1rem 1.25rem;
     }
   }
 
   @media (max-width: 480px) {
     .gallery-grid {
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 0.75rem;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
       padding: 1rem 0.75rem;
+    }
+
+    .gallery-header {
+      padding: 0 0.75rem 1rem;
+    }
+
+    .tag-line {
+      width: 24px;
+    }
+
+    .tag-text {
+      font-size: 0.6rem;
+    }
+
+    .gallery-count {
+      font-size: 0.6rem;
     }
   }
 </style>

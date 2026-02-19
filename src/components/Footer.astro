@@ -3,63 +3,145 @@ const currentYear = new Date().getFullYear();
 ---
 
 <footer class="footer">
+  <div class="footer-rule" aria-hidden="true">
+    <span class="rule-left"></span>
+    <span class="rule-symbol">&#9670;</span>
+    <span class="rule-right"></span>
+  </div>
   <div class="footer-container">
-    <div class="footer-content">
-      <p>&copy; {currentYear} Adrian Villanueva Martinez. All rights reserved.</p>
-      <p class="license-text">
-        This website is licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener noreferrer">GNU GPL v3</a>.
-        Photos must credit Adrian Villanueva Martinez as the source when used.
-      </p>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <span class="colophon-label">Photographer</span>
+        <span class="colophon-value">Adrian Villanueva Martinez</span>
+      </div>
+      <div class="footer-col">
+        <span class="colophon-label">Based in</span>
+        <span class="colophon-value">Tokyo, Japan</span>
+      </div>
+      <div class="footer-col">
+        <span class="colophon-label">License</span>
+        <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener noreferrer" class="colophon-link">GNU GPL v3</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="copyright">&copy; {currentYear} &mdash; All photographs must credit Adrian Villanueva Martinez as source.</p>
     </div>
   </div>
 </footer>
 
 <style>
   .footer {
-    background: #0a0a0a;
-    border-top: 1px solid #2a2a2a;
-    padding: 3rem 2rem;
+    padding: 0 2rem 3rem;
     margin-top: 6rem;
   }
 
+  .footer-rule {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 3rem;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .rule-left,
+  .rule-right {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-border), transparent);
+  }
+
+  .rule-symbol {
+    color: var(--color-primary-dim);
+    font-size: 0.5rem;
+    opacity: 0.5;
+  }
+
   .footer-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
+  }
+
+  .footer-grid {
     display: flex;
     justify-content: center;
+    gap: 4rem;
+    margin-bottom: 2rem;
+  }
+
+  .footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
     align-items: center;
   }
 
-  .footer-content {
+  .colophon-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    opacity: 0.6;
+  }
+
+  .colophon-value {
+    font-family: var(--font-serif);
+    font-size: 0.9rem;
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .colophon-link {
+    font-family: var(--font-serif);
+    font-size: 0.9rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .colophon-link:hover {
+    color: var(--color-text);
+  }
+
+  .footer-bottom {
     text-align: center;
   }
 
-  .footer p {
-    color: #666;
-    font-size: 0.9rem;
-    margin: 0.5rem 0;
-  }
-
-  .license-text {
-    font-size: 0.85rem !important;
-    color: #555;
-  }
-
-  .license-text a {
-    color: #d4af37;
-    text-decoration: none;
-    transition: color 0.3s ease;
-  }
-
-  .license-text a:hover {
-    color: #e8c547;
-    text-decoration: underline;
+  .copyright {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--color-text-secondary);
+    opacity: 0.4;
+    letter-spacing: 0.05em;
   }
 
   @media (max-width: 640px) {
-    .footer-container {
+    .footer {
+      padding: 0 1.25rem 2rem;
+      margin-top: 3rem;
+    }
+
+    .footer-rule {
+      margin-bottom: 2rem;
+    }
+
+    .footer-grid {
       flex-direction: column;
+      gap: 1.25rem;
       align-items: center;
+    }
+
+    .colophon-value,
+    .colophon-link {
+      font-size: 0.85rem;
+    }
+
+    .copyright {
+      font-size: 0.6rem;
+      line-height: 1.5;
+      padding: 0 0.5rem;
     }
   }
 </style>
