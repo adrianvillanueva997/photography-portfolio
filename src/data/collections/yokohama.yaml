@@ -1,0 +1,35 @@
+collection: Yokohama
+description: Exploring Yokohama
+photos:
+  - id: yokohama-chukagai-dragon-dance
+    title: Dragon dance on Chukagai 横浜中華街
+    image: https://cdn.avm.photography/collections/yokohama/R0012523-display.avif
+    collection: https://cdn.avm.photography/collections/yokohama/R0012523-collection.avif
+    thumbnail: https://cdn.avm.photography/collections/yokohama/R0012523-thumbnail.avif
+    metadata:
+      camera: RICOH IMAGING COMPANY, LTD. RICOH GR III
+      lens: RICOH GR LENS 28mm F2.8
+      settings:
+        iso:
+          - 200
+        aperture: f/4.0
+        shutter: 1/60
+        focalLength: 28mm
+      location: Yokohama Chukagai, Kanagawa, Japan
+      dateTaken: 2026:02:21 17:25:10
+  - id: photo-001
+    title: Lunar Rhythm
+    image: https://cdn.avm.photography/collections/yokohama/R0012528-display.avif
+    collection: https://cdn.avm.photography/collections/yokohama/R0012528-collection.avif
+    thumbnail: https://cdn.avm.photography/collections/yokohama/R0012528-thumbnail.avif
+    metadata:
+      camera: RICOH IMAGING COMPANY, LTD. RICOH GR III
+      lens: Unknown
+      settings:
+        iso:
+          - 1000
+        aperture: f/2.6
+        shutter: 1/60
+        focalLength: 28mm
+      location: Yokohama Chukagai, Kanagawa, Japan
+      dateTaken: 2026:02:21 17:31:41
