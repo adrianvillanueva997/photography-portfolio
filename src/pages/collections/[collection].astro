@@ -67,6 +67,30 @@ if (!data) {
 	throw new Error(`Collection ${collection} not found`);
 }
 
+// Derive a unique ID from the image URL filename
+function uniqueIdFromImage(photo: Photo): string {
+	const filename = photo.image.split('/').pop()?.replace(/\.[^.]+$/, '') || photo.id;
+	return filename;
+}
+
+// Sort photos by dateTaken in descending order (most recent first)
+const sortedPhotos = [...data.photos].sort((a, b) => {
+	const dateStrA = String(a.metadata.dateTaken);
+	const dateStrB = String(b.metadata.dateTaken);
+	// Replace colons only in date part (YYYY:MM:DD format)
+	const parsedA = dateStrA.replace(/(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3');
+	const parsedB = dateStrB.replace(/(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3');
+	const dateA = new Date(parsedA);
+	const dateB = new Date(parsedB);
+	const timeA = dateA.getTime();
+	const timeB = dateB.getTime();
+	// Handle invalid dates
+	if (isNaN(timeA)) return 1; // a is invalid, push to end
+	if (isNaN(timeB)) return -1; // b is invalid, push to end
+	return timeB - timeA; // newest first (descending)
+});
+data.photos = sortedPhotos;
+
 // Generate JSON-LD schema for collection
 const imageUrls = data.photos.map(photo => photo.image);
 const collectionUrl = `https://avm.photography/collections/${collection}`;
@@ -107,10 +131,9 @@ const collectionSchema = generateCollectionSchema(
         <div class="gallery-grid">
           {data.photos.map(photo => (
             <PhotoCard
-              id={photo.id}
+              id={uniqueIdFromImage(photo)}
               title={photo.title}
               image={photo.image}
-              thumbnail={photo.thumbnail}
               metadata={photo.metadata}
             />
           ))}
@@ -219,15 +242,24 @@ const collectionSchema = generateCollectionSchema(
   }
 
   .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
-    padding: 2rem 1rem;
+    columns: 4;
+    column-gap: 2rem;
+    padding: 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 1400px) {
+    .gallery-grid {
+      columns: 3;
+      column-gap: 1.5rem;
+    }
   }
 
   @media (max-width: 1024px) {
     .gallery-grid {
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      columns: 2;
+      column-gap: 1.25rem;
     }
   }
 
@@ -237,14 +269,18 @@ const collectionSchema = generateCollectionSchema(
     }
 
     .gallery-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
-      padding: 1.25rem 1rem;
+      padding: 1.5rem 1rem;
+      gap: 1rem;
     }
+  }
 
-    .header-tag {
-      flex-wrap: wrap;
+  @media (max-width: 640px) {
+    .gallery-grid {
+      columns: 1;
+      gap: 1.5rem;
+      padding: 1.5rem 1rem;
     }
+  }
 
     .tag-count {
       margin-left: 0;
@@ -261,14 +297,19 @@ const collectionSchema = generateCollectionSchema(
     }
   }
 
+  @media (max-width: 640px) {
+    .gallery-grid {
+      columns: 1;
+      gap: 0;
+    }
+  }
+
   @media (max-width: 480px) {
     .collection-header {
       padding: 1.5rem 1rem 1.5rem;
     }
 
     .gallery-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.5rem;
       padding: 1rem 0.75rem;
     }
 

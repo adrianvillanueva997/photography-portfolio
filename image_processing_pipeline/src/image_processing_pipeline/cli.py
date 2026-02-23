@@ -381,13 +381,14 @@ def add_to_collection(collection, base_url, quality, effort):
 
     # Get next photo ID
     existing_ids = [photo.get("id") for photo in collection_data.get("photos", [])]
-    next_num = (
-        max(
-            [int(id.split("-")[1]) for id in existing_ids if id and "-" in id],
-            default=0,
-        )
-        + 1
-    )
+    photo_num_ids = []
+    for pid in existing_ids:
+        if isinstance(pid, str) and pid.startswith("photo-"):
+            parts = pid.split("-")
+            if len(parts) >= 2 and parts[1].isdigit():
+                photo_num_ids.append(int(parts[1]))
+    
+    next_num = max(photo_num_ids, default=0) + 1
 
     # Process new images
     for base_name, _ in new_images:

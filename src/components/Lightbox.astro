@@ -32,17 +32,38 @@ const { id, image, title, metadata } = Astro.props;
       </svg>
     </button>
     <div class="lightbox-image-wrapper">
-      <img src={image} alt={title} />
-      <Watermark photographer="© Adrian Villanueva" />
-      <div class="lightbox-info">
-        <p class="lightbox-title">{title}</p>
-        <div class="lightbox-metadata">
-          <span>{metadata.camera}</span>
-          <span>{metadata.settings.aperture}</span>
-          <span>ISO {metadata.settings.iso}</span>
-          <span>{metadata.settings.shutter}</span>
-          <span>📍 {metadata.location}</span>
-          <span>📅 {metadata.dateTaken}</span>
+      <div class="image-container">
+        <img src={image} alt={title} />
+        <Watermark photographer="© Adrian Villanueva" />
+      </div>
+
+      <div class="lightbox-footer">
+        <div class="footer-layout">
+          <div class="title-group">
+            <p class="lightbox-title">{title}</p>
+          </div>
+
+          <div class="technical-bar">
+            <div class="technical-item">
+              <span class="technical-label">Location</span>
+              <span class="technical-value">{metadata.location}</span>
+            </div>
+            <div class="technical-separator"></div>
+            <div class="technical-item">
+              <span class="technical-label">Equipment</span>
+              <span class="technical-value">{metadata.camera}</span>
+            </div>
+            <div class="technical-separator"></div>
+            <div class="technical-item">
+              <span class="technical-label">Exposure</span>
+              <span class="technical-value">{metadata.settings.aperture} • {metadata.settings.shutter} • ISO {metadata.settings.iso}</span>
+            </div>
+            <div class="technical-separator"></div>
+            <div class="technical-item">
+              <span class="technical-label">Chronology</span>
+              <span class="technical-value">{metadata.dateTaken.replace(/:/g, '.')}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -52,14 +73,11 @@ const { id, image, title, metadata } = Astro.props;
 <style>
   .lightbox {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .lightbox.active {
@@ -69,171 +87,245 @@ const { id, image, title, metadata } = Astro.props;
 
   .lightbox-backdrop {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(12, 11, 9, 0.96);
-    backdrop-filter: blur(8px);
+    inset: 0;
+    background: #080807;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
 
   .lightbox-content {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    max-width: 90vw;
-    max-height: 90vh;
+    inset: 0;
     z-index: 1001;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    padding: 3rem 2rem;
   }
 
   .lightbox-image-wrapper {
     position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3.5rem;
+  }
+
+  .image-container {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    width: 100%;
+  }
+
+  .image-container img {
     max-width: 100%;
     max-height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .lightbox-image-wrapper img {
-    max-width: 100%;
-    max-height: 80vh;
     object-fit: contain;
-    border: 1px solid var(--color-border);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #000;
+    box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.9);
   }
 
-  .lightbox-info {
+  .lightbox-footer {
+    width: 100%;
+    max-width: 1100px;
+    flex-shrink: 0;
+  }
+
+  .footer-layout {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
     align-items: center;
-    width: 100%;
+    gap: 3rem;
+  }
+
+  .title-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .meta-type {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    opacity: 0.6;
+    margin-bottom: 0.5rem;
   }
 
   .lightbox-title {
     color: var(--color-text);
     font-family: var(--font-serif);
-    font-size: 1.15rem;
+    font-size: clamp(1.75rem, 5vw, 2.75rem);
     font-weight: 500;
     margin: 0;
     text-align: center;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
   }
 
-  .lightbox-metadata {
+  .technical-bar {
     display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
+    align-items: flex-end;
     justify-content: center;
-    align-items: center;
-    color: var(--color-text-secondary);
-    font-size: 0.75rem;
-    font-family: var(--font-mono);
-    letter-spacing: 0.05em;
+    gap: 2.5rem;
     width: 100%;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 2rem;
   }
 
-  .lightbox-metadata span {
+  .technical-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .technical-label {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    opacity: 0.4;
+  }
+
+  .technical-value {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--color-text-secondary);
+    letter-spacing: 0.1em;
     white-space: nowrap;
   }
 
+  .technical-separator {
+    width: 1px;
+    height: 14px;
+    background: var(--color-primary);
+    opacity: 0.2;
+    margin-bottom: 4px;
+  }
+
   .lightbox-close {
-    position: absolute;
-    top: 2rem;
+    position: fixed;
+    bottom: 2rem;
     right: 2rem;
-    background: none;
+    background: transparent;
     border: none;
     color: var(--color-text-secondary);
     cursor: pointer;
-    padding: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.3s;
+    padding: 1rem;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 1002;
+    opacity: 0.3;
   }
 
   .lightbox-close:hover {
     color: var(--color-primary);
+    transform: rotate(90deg) scale(1.1);
+    opacity: 1;
   }
 
-  .lightbox-close svg {
-    display: block;
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
-  @media (max-width: 768px) {
-    .lightbox-content {
-      max-width: 95vw;
-      max-height: 95vh;
+  .lightbox.active .footer-layout {
+    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.2s;
+  }
+
+  @media (max-width: 900px) {
+    .technical-bar {
+      gap: 1.5rem;
+    }
+    .technical-value {
+      font-size: 0.6rem;
+    }
+  }
+
+  @media (max-width: 750px) {
+    .technical-bar {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      border: none;
       padding: 0;
+      width: 100%;
     }
 
-    .lightbox-close {
-      top: 0.75rem;
-      right: 0.75rem;
-      padding: 0.75rem;
-      background: rgba(12, 11, 9, 0.6);
-      border-radius: 50%;
+    .technical-separator {
+      display: none;
     }
 
-    .lightbox-close svg {
-      width: 24px;
-      height: 24px;
-    }
-
-    .lightbox-image-wrapper {
-      gap: 0.75rem;
-    }
-
-    .lightbox-image-wrapper img {
-      max-height: 65vh;
-    }
-
-    .lightbox-title {
-      font-size: 1rem;
-    }
-
-    .lightbox-metadata {
-      gap: 0.75rem;
-      font-size: 0.65rem;
-      padding: 0 0.5rem;
+    .technical-item {
+      align-items: center;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
     }
   }
 
   @media (max-width: 480px) {
-    .lightbox-image-wrapper img {
-      max-height: 55vh;
-      border: none;
+    .lightbox-content {
+      padding: 1.5rem;
+    }
+
+    .lightbox-image-wrapper {
+      gap: 2.5rem;
     }
 
     .lightbox-title {
-      font-size: 0.9rem;
+      font-size: 1.6rem;
     }
 
-    .lightbox-metadata {
-      gap: 0.5rem 0.75rem;
-      font-size: 0.6rem;
-    }
-
-    .lightbox-info {
-      gap: 0.5rem;
+    .lightbox-close {
+      bottom: auto;
+      top: 1rem;
+      right: 1rem;
     }
   }
 </style>
 
 <script define:vars={{ id }}>
   const lightbox = document.getElementById(`lightbox-${id}`);
-  const backdrop = lightbox?.querySelector('.lightbox-backdrop');
-  const closeBtn = lightbox?.querySelector('.lightbox-close');
 
   function closeLightbox() {
     lightbox?.classList.remove('active');
     document.body.style.overflow = '';
   }
+
+  // Close when clicking outside the photo/metadata
+  lightbox?.addEventListener('click', (e) => {
+    if (!lightbox.classList.contains('active')) return;
+    
+    const clickTarget = e.target;
+    const isImg = clickTarget.closest('img');
+    const isFooter = clickTarget.closest('.lightbox-footer');
+    
+    // Close if the click wasn't on the image or the footer metadata
+    if (!isImg && !isFooter) {
+      closeLightbox();
+    }
+  });
 
   function navigatePhotos(direction) {
     if (!lightbox?.classList.contains('active')) return;
@@ -254,9 +346,6 @@ const { id, image, title, metadata } = Astro.props;
       nextTrigger.click();
     }
   }
-
-  backdrop?.addEventListener('click', closeLightbox);
-  closeBtn?.addEventListener('click', closeLightbox);
 
   // Close on Escape key
   document.addEventListener('keydown', (e) => {
