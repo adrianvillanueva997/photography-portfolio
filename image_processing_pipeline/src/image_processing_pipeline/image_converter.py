@@ -6,16 +6,47 @@ from typing import Optional
 class ImageConverter:
     """Convert images to different formats with configurable quality settings."""
 
-    def __init__(self, output_quality: int = 85, compression_effort: int = 4):
+    def __init__(
+        self,
+        output_quality: int = 85,
+        compression_effort: int = 7,
+        subsample_mode: str = "auto",
+        strip_metadata: bool = True,
+        sharpen: bool = True,
+    ):
         """
         Initialize converter with quality and compression settings.
 
         Args:
-            output_quality: JPEG/WebP quality (0-100, default 85)
-            compression_effort: Compression effort level (1-6, default 4)
+            output_quality: AVIF quality (0-100, default 85)
+            compression_effort: Compression effort level (0-9, default 7).
+                Higher values produce better compression at the cost of
+                encoding speed — ideal for offline pipelines.
+            subsample_mode: Chroma subsampling mode ("auto", "on", "off").
+                "off" preserves full chroma for display images.
+            strip_metadata: If True, strip all metadata except ICC profile
+                for color accuracy.  EXIF is extracted separately.
+            sharpen: If True, apply a mild sharpen after resize to recover
+                detail lost during downsampling.
         """
         self.output_quality = output_quality
         self.compression_effort = compression_effort
+        self.subsample_mode = subsample_mode
+        self.strip_metadata = strip_metadata
+        self.sharpen = sharpen
+
+    def _save_options(self, **overrides) -> dict:
+        """Build common AVIF save keyword arguments."""
+        opts: dict = {
+            "Q": self.output_quality,
+            "effort": self.compression_effort,
+            "bitdepth": 12,
+            "subsample_mode": self.subsample_mode,
+        }
+        if self.strip_metadata:
+            opts["keep"] = "icc"  # retain ICC profile for colour accuracy
+        opts.update(overrides)
+        return opts
 
     def convert(
         self, photo: str, output_path: str | None = None, output_format: str = "avif"
@@ -45,9 +76,7 @@ class ImageConverter:
 
         try:
             image = pyvips.Image.new_from_file(str(input_path), access="sequential")
-            image.write_to_file(
-                str(output_path), Q=self.output_quality, effort=self.compression_effort
-            )
+            image.write_to_file(str(output_path), **self._save_options())
             return str(output_path)
         except Exception as e:
             raise IOError(f"Failed to convert image {photo}: {str(e)}") from e
@@ -85,14 +114,18 @@ class ImageConverter:
             output_path = str(input_path.parent / f"{stem}-{width}w.{output_format}")
 
         try:
-            image = pyvips.Image.new_from_file(str(input_path), access="sequential")
-            # Calculate height based on aspect ratio
-            height = int((image.height / image.width) * width)
-            # Resize with high-quality kernel
-            image = image.resize(width / image.width, vscale=height / image.height)
-            image.write_to_file(
-                str(output_path), Q=self.output_quality, effort=self.compression_effort
-            )
+            # thumbnail() uses shrink-on-load (decodes at reduced resolution)
+            # and resizes with a high-quality lanczos3 kernel in one step,
+            # producing sharper results than load-then-resize.
+            image = pyvips.Image.thumbnail(str(input_path), width)
+
+            # Mild unsharp-mask to recover perceived detail lost in
+            # downsampling.  sigma=1.0 keeps the effect subtle;
+            # m1=0 avoids sharpening flat/smooth areas (sky, skin).
+            if self.sharpen:
+                image = image.sharpen(sigma=1.0, x1=1.5, y2=5, y3=10, m1=0, m2=2)
+
+            image.write_to_file(str(output_path), **self._save_options())
             return str(output_path)
         except Exception as e:
             raise IOError(f"Failed to resize image {photo}: {str(e)}") from e

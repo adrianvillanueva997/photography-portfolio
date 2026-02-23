@@ -11,7 +11,7 @@ with open("pipeline_artifacts/raw/R0012110.DNG", mode="rb") as file:
     print(metadata)
 
 # Generate responsive image sizes
-converter = ImageConverter(output_quality=85, compression_effort=4)
+converter = ImageConverter(output_quality=85, compression_effort=7)
 
 # Define sizes for your website
 custom_sizes = {

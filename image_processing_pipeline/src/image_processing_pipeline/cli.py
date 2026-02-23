@@ -31,9 +31,9 @@ def cli():
 )
 @click.option(
     "--effort",
-    default=4,
-    help="Compression effort (1-6)",
-    type=click.IntRange(1, 6),
+    default=7,
+    help="Compression effort (0-9, higher = better compression but slower)",
+    type=click.IntRange(0, 9),
 )
 @click.option(
     "--thumbnail-width",
@@ -58,6 +58,22 @@ def cli():
     is_flag=True,
     help="Also generate 400w, 800w, 1600w variants for responsive images",
 )
+@click.option(
+    "--subsample-mode",
+    default="auto",
+    help="Chroma subsampling mode (auto, on, off)",
+    type=click.Choice(["auto", "on", "off"]),
+)
+@click.option(
+    "--strip-metadata/--keep-metadata",
+    default=True,
+    help="Strip non-ICC metadata from output (default: strip)",
+)
+@click.option(
+    "--sharpen/--no-sharpen",
+    default=True,
+    help="Apply mild post-resize sharpening (default: on)",
+)
 def process(
     input_path,
     output_dir,
@@ -67,6 +83,9 @@ def process(
     collection_width,
     display_width,
     responsive,
+    subsample_mode,
+    strip_metadata,
+    sharpen,
 ):
     """Process a raw image file and generate responsive sizes."""
     input_file = Path(input_path)
@@ -87,7 +106,13 @@ def process(
     click.echo(f"  Date: {metadata.date_taken}")
 
     # Generate responsive sizes
-    converter = ImageConverter(output_quality=quality, compression_effort=effort)
+    converter = ImageConverter(
+        output_quality=quality,
+        compression_effort=effort,
+        subsample_mode=subsample_mode,
+        strip_metadata=strip_metadata,
+        sharpen=sharpen,
+    )
     sizes = {
         "thumbnail": thumbnail_width,
         "collection": collection_width,
