@@ -18,13 +18,8 @@ services:
       - traefik.http.routers.photography-portfolio-https.entrypoints=https
       - traefik.http.services.photography-portfolio.loadbalancer.server.port=80
       - traefik.docker.network=proxy
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
 
 networks:
   proxy:
     external: true
+
