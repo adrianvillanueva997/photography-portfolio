@@ -4,12 +4,13 @@ import Watermark from "./Watermark.astro";
 interface Props {
 	id: string;
 	image: string;
+	thumbnail: string;
 	title: string;
 	metadata: {
 		camera: string;
 		lens: string;
 		settings: {
-			iso: number;
+			iso: number | number[];
 			aperture: string;
 			shutter: string;
 			focalLength: number | string;
@@ -19,21 +20,31 @@ interface Props {
 	};
 }
 
-const { id, image, title, metadata } = Astro.props;
+const { id, image, thumbnail, title, metadata } = Astro.props;
+const isoValue = Array.isArray(metadata.settings.iso) ? metadata.settings.iso[0] : metadata.settings.iso;
+const shareUrl = `https://avm.photography/collections/${id}`;
 ---
 
-<div class="lightbox" id={`lightbox-${id}`}>
+<div class="lightbox" id={`lightbox-${id}`} role="dialog" aria-modal="true" aria-label={title}>
   <div class="lightbox-backdrop"></div>
   <div class="lightbox-content">
-    <button class="lightbox-close" aria-label="Close">
-      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <button class="lightbox-close" aria-label="Close" type="button">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
         <line x1="18" y1="6" x2="6" y2="18"></line>
         <line x1="6" y1="6" x2="18" y2="18"></line>
       </svg>
     </button>
+
     <div class="lightbox-image-wrapper">
       <div class="image-container">
-        <img src={image} alt={title} />
+        <div class="image-loading" aria-hidden="true">
+          <div class="spinner"></div>
+        </div>
+        <picture>
+          <source srcset={image} type="image/avif" />
+          <source srcset={image.replace(/\.\w+$/, '.webp')} type="image/webp" />
+          <img src={image} alt={title} class="lightbox-img" data-thumb={thumbnail} />
+        </picture>
         <Watermark photographer="© Adrian Villanueva" />
       </div>
 
@@ -56,7 +67,7 @@ const { id, image, title, metadata } = Astro.props;
             <div class="technical-separator"></div>
             <div class="technical-item">
               <span class="technical-label">Exposure</span>
-              <span class="technical-value">{metadata.settings.aperture} • {metadata.settings.shutter} • ISO {metadata.settings.iso}</span>
+              <span class="technical-value">{metadata.settings.aperture} • {metadata.settings.shutter} • ISO {isoValue}</span>
             </div>
             <div class="technical-separator"></div>
             <div class="technical-item">
@@ -64,6 +75,17 @@ const { id, image, title, metadata } = Astro.props;
               <span class="technical-value">{metadata.dateTaken.replace(/:/g, '.')}</span>
             </div>
           </div>
+
+          <button class="share-button" type="button" aria-label="Share this photo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+            <span>Share</span>
+          </button>
         </div>
       </div>
     </div>
@@ -125,6 +147,40 @@ const { id, image, title, metadata } = Astro.props;
     width: 100%;
   }
 
+  .image-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  .image-loading.loaded {
+    opacity: 0;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .image-container picture,
+  .image-container img {
+    position: relative;
+    z-index: 2;
+  }
+
   .image-container img {
     max-width: 100%;
     max-height: 100%;
@@ -132,6 +188,13 @@ const { id, image, title, metadata } = Astro.props;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: #000;
     box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.9);
+    touch-action: pinch-zoom;
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+  }
+
+  .image-container img.zoomed {
+    cursor: zoom-out;
   }
 
   .lightbox-footer {
@@ -217,6 +280,28 @@ const { id, image, title, metadata } = Astro.props;
     margin-bottom: 4px;
   }
 
+  .share-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.25rem;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .share-button:hover {
+    border-color: var(--color-primary-dim);
+    color: var(--color-text);
+    background: rgba(200, 164, 90, 0.05);
+  }
+
   .lightbox-close {
     position: fixed;
     bottom: 2rem;
@@ -229,6 +314,7 @@ const { id, image, title, metadata } = Astro.props;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 1002;
     opacity: 0.3;
+    pointer-events: auto;
   }
 
   .lightbox-close:hover {
@@ -305,86 +391,218 @@ const { id, image, title, metadata } = Astro.props;
   }
 </style>
 
-<script define:vars={{ id }}>
+<script define:vars={{ id, shareUrl }}>
   const lightbox = document.getElementById(`lightbox-${id}`);
+  let lastFocused = null;
+
+  function openLightbox() {
+    if (!lightbox) return;
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    lastFocused = document.activeElement;
+    const closeBtn = lightbox.querySelector('.lightbox-close');
+    if (closeBtn) closeBtn.focus();
+  }
 
   function closeLightbox() {
-    lightbox?.classList.remove('active');
+    if (!lightbox) return;
+    lightbox.classList.remove('active');
     document.body.style.overflow = '';
+    if (lastFocused) lastFocused.focus();
+    lastFocused = null;
   }
 
-  // Close when clicking outside the photo/metadata
-  lightbox?.addEventListener('click', (e) => {
-    if (!lightbox.classList.contains('active')) return;
-    
-    const clickTarget = e.target;
-    const isImg = clickTarget.closest('img');
-    const isFooter = clickTarget.closest('.lightbox-footer');
-    
-    // Close if the click wasn't on the image or the footer metadata
-    if (!isImg && !isFooter) {
-      closeLightbox();
-    }
-  });
+  lightbox.__open = openLightbox;
 
-  function navigatePhotos(direction) {
-    if (!lightbox?.classList.contains('active')) return;
-
-    const allTriggers = document.querySelectorAll('[data-lightbox-trigger]');
-    const currentIndex = Array.from(allTriggers).findIndex(t => t.getAttribute('data-lightbox-trigger') === id);
-
-    let nextIndex;
-    if (direction === 'next') {
-      nextIndex = (currentIndex + 1) % allTriggers.length;
+  // Loading state: show spinner until image loads
+  const img = lightbox.querySelector('.lightbox-img');
+  const loadingEl = lightbox.querySelector('.image-loading');
+  if (img) {
+    if (img.complete) {
+      if (loadingEl) loadingEl.classList.add('loaded');
     } else {
-      nextIndex = (currentIndex - 1 + allTriggers.length) % allTriggers.length;
-    }
-
-    const nextTrigger = allTriggers[nextIndex];
-    if (nextTrigger) {
-      closeLightbox();
-      nextTrigger.click();
+      img.addEventListener('load', function() {
+        if (loadingEl) loadingEl.classList.add('loaded');
+      });
+      img.addEventListener('error', function() {
+        if (loadingEl) loadingEl.classList.add('loaded');
+      });
     }
   }
 
-  // Close on Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && lightbox?.classList.contains('active')) {
-      closeLightbox();
-    }
-    // Navigate with arrow keys
-    if (lightbox?.classList.contains('active')) {
-      if (e.key === 'ArrowRight') {
-        e.preventDefault();
-        navigatePhotos('next');
-      } else if (e.key === 'ArrowLeft') {
-        e.preventDefault();
-        navigatePhotos('prev');
+  // Double-tap / pinch zoom
+  let zoomed = false;
+  if (img) {
+    img.addEventListener('click', function(e) {
+      e.stopPropagation();
+      zoomed = !zoomed;
+      img.classList.toggle('zoomed');
+      if (zoomed) {
+        img.style.transform = 'scale(2)';
+        img.style.cursor = 'zoom-out';
+      } else {
+        img.style.transform = 'scale(1)';
+        img.style.cursor = 'zoom-in';
       }
+    });
+
+    // Track pinch distance for zoom
+    var lastDist = 0;
+    img.addEventListener('touchstart', function(e) {
+      if (e.touches.length === 2) {
+        lastDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: true });
+
+    img.addEventListener('touchmove', function(e) {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        var dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        if (dist > lastDist * 1.2 && !zoomed) {
+          zoomed = true;
+          img.classList.add('zoomed');
+          img.style.transform = 'scale(2)';
+          img.style.cursor = 'zoom-out';
+        } else if (dist < lastDist * 0.8 && zoomed) {
+          zoomed = false;
+          img.classList.remove('zoomed');
+          img.style.transform = 'scale(1)';
+          img.style.cursor = 'zoom-in';
+        }
+        lastDist = dist;
+      }
+    }, { passive: false });
+  }
+
+  // Close button
+  const closeBtn = lightbox.querySelector('.lightbox-close');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      closeLightbox();
+    });
+  }
+
+  // Click-away
+  const content = lightbox.querySelector('.lightbox-content');
+  if (content) {
+    content.addEventListener('click', function(e) {
+      if (!lightbox.classList.contains('active')) return;
+      var target = e.target;
+      if (target.closest('.image-container')) return;
+      if (target.closest('.lightbox-footer')) return;
+      if (target.closest('.lightbox-close')) return;
+      closeLightbox();
+    });
+  }
+
+  // Trap focus
+  lightbox.addEventListener('keydown', function(e) {
+    if (!lightbox.classList.contains('active')) return;
+    if (e.key !== 'Tab') return;
+    var focusable = lightbox.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    var first = focusable[0];
+    var last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
     }
   });
 
-  // Swipe navigation for mobile
-  let touchStartX = 0;
-  let touchEndX = 0;
-
-  lightbox?.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-  }, false);
-
-  lightbox?.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    if (!lightbox?.classList.contains('active')) return;
-
-    const swipeThreshold = 50;
-    const diff = touchStartX - touchEndX;
-
-    if (Math.abs(diff) > swipeThreshold) {
-      if (diff > 0) {
-        navigatePhotos('next'); // Swiped left, show next
-      } else {
-        navigatePhotos('prev'); // Swiped right, show previous
-      }
+  // Global keyboard: Escape, arrows
+  document.addEventListener('keydown', function(e) {
+    if (!lightbox.classList.contains('active')) return;
+    if (e.key === 'Escape') {
+      closeLightbox();
+      return;
     }
-  }, false);
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      navigateNext();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      navigatePrev();
+    }
+  });
+
+  function getTriggers() {
+    return document.querySelectorAll('[data-lightbox-trigger]');
+  }
+
+  function triggerIndex() {
+    var triggers = getTriggers();
+    for (var i = 0; i < triggers.length; i++) {
+      if (triggers[i].getAttribute('data-lightbox-trigger') === id) return i;
+    }
+    return -1;
+  }
+
+  function navigateNext() {
+    var triggers = getTriggers();
+    var idx = triggerIndex();
+    var next = triggers[(idx + 1) % triggers.length];
+    if (next) { closeLightbox(); next.click(); }
+  }
+
+  function navigatePrev() {
+    var triggers = getTriggers();
+    var idx = triggerIndex();
+    var next = triggers[(idx - 1 + triggers.length) % triggers.length];
+    if (next) { closeLightbox(); next.click(); }
+  }
+
+  // Swipe navigation
+  (function() {
+    var startX = 0;
+    lightbox.addEventListener('touchstart', function(e) {
+      startX = e.changedTouches[0].screenX;
+    }, false);
+    lightbox.addEventListener('touchend', function(e) {
+      if (!lightbox.classList.contains('active')) return;
+      // Don't swipe if user was zooming
+      var imgEl = lightbox.querySelector('.lightbox-img');
+      if (imgEl && imgEl.classList.contains('zoomed')) return;
+      var diff = startX - e.changedTouches[0].screenX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) navigateNext(); else navigatePrev();
+      }
+    }, false);
+  })();
+
+  // Web Share API
+  var shareBtn = lightbox.querySelector('.share-button');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var photoTitle = lightbox.querySelector('.lightbox-title');
+      var title = (photoTitle ? photoTitle.textContent : '') || 'Photograph';
+      var text = 'Check out this photograph by Adrian Villanueva';
+      var url = shareUrl;
+
+      if (navigator.share) {
+        navigator.share({ title: title, text: text, url: url }).catch(function() {});
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(function() {
+          var label = shareBtn.querySelector('span');
+          if (label) {
+            var orig = label.textContent;
+            label.textContent = 'Copied!';
+            setTimeout(function() { label.textContent = orig; }, 2000);
+          }
+        });
+      }
+    });
+  }
 </script>

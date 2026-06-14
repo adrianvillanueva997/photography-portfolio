@@ -57,7 +57,7 @@ const sortedCollections = collections.sort(
 <Layout title="Collections - Adrian Villanueva" description="Browse photography collections: Urban landscapes and nature photography from Tokyo.">
   <Header currentPage="collections" />
 
-  <main class="main">
+  <main id="main-content" class="main">
     <section class="collections-section">
       <div class="collections-container">
         <div class="header-block">
@@ -83,16 +83,18 @@ const sortedCollections = collections.sort(
         </div>
 
         <div class="collections-grid">
-          {sortedCollections.map((collection, index) => (
+          {sortedCollections.map((collection, index) => {
+            const photo = collection.data.photos[0];
+            const imageUrl = photo?.collection || photo?.image || '';
+            return (
             <a href={`/collections/${collection.slug}`} class="collection-card" style={`animation-delay: ${index * 0.1}s`}>
               <div class="collection-preview">
                 <OptimizedImage
-                  src={collection.data.photos[0]?.collection}
+                  src={imageUrl}
                   alt={collection.data.collection}
-                  widths={[]}
                   priority={index < 3}
                   loading={index < 3 ? "eager" : "lazy"}
-                  metadata={collection.data.photos[0]?.metadata}
+                  metadata={photo?.metadata}
                 />
                 <div class="overlay">
                   <div class="overlay-content">
@@ -109,7 +111,8 @@ const sortedCollections = collections.sort(
                 <p>{collection.data.description}</p>
               </div>
             </a>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

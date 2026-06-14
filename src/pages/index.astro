@@ -4,6 +4,7 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import ProfileSection from "../components/ProfileSection.astro";
 import PhotoCard from "../components/PhotoCard.astro";
+import { uniqueIdFromImage, sortPhotosByDate } from "../lib/imageMetadata.ts";
 import yaml from "js-yaml";
 
 interface Photo {
@@ -15,7 +16,7 @@ interface Photo {
 		camera: string;
 		lens: string;
 		settings: {
-			iso: number;
+			iso: number | number[];
 			aperture: string;
 			shutter: string;
 			focalLength: number | string;
@@ -44,34 +45,13 @@ for (const [_path, getContent] of Object.entries(collectionFiles)) {
 	allPhotos.push(...data.photos);
 }
 
-// Derive a unique ID from the image URL filename
-function uniqueIdFromImage(photo: Photo): string {
-	const filename = photo.image.split('/').pop()?.replace(/\.[^.]+$/, '') || photo.id;
-	return filename;
-}
-
-// Sort photos by dateTaken in descending order (newest first)
-const sortedPhotos = [...allPhotos].sort((a, b) => {
-	const dateStrA = String(a.metadata.dateTaken);
-	const dateStrB = String(b.metadata.dateTaken);
-	// Replace colons only in date part (YYYY:MM:DD format)
-	const parsedA = dateStrA.replace(/(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3');
-	const parsedB = dateStrB.replace(/(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3');
-	const dateA = new Date(parsedA);
-	const dateB = new Date(parsedB);
-	const timeA = dateA.getTime();
-	const timeB = dateB.getTime();
-	// Handle invalid dates
-	if (isNaN(timeA)) return 1; // a is invalid, push to end
-	if (isNaN(timeB)) return -1; // b is invalid, push to end
-	return timeB - timeA; // newest first (descending)
-});
+const sortedPhotos = sortPhotosByDate(allPhotos);
 ---
 
 <Layout title="Adrian Villanueva - Photography Portfolio" description="Tokyo-based photographer showcasing urban landscapes and natural beauty.">
   <Header currentPage="home" />
 
-  <main class="main">
+  <main id="main-content" class="main">
     <ProfileSection />
 
     <section class="gallery-section">
@@ -178,7 +158,7 @@ const sortedPhotos = [...allPhotos].sort((a, b) => {
       columns: 1;
       padding: 1.5rem 1rem;
     }
-  }
+
     .gallery-header {
       padding: 0 0.75rem 1rem;
     }

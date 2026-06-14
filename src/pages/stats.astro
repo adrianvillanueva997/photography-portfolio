@@ -32,7 +32,7 @@ interface Collection {
 
 // Load stats data
 const statsFile = await import("../data/stats.yaml?raw", {
-	assert: { type: "raw" },
+	with: { type: "raw" },
 });
 const statsData = yaml.load(statsFile.default) as {
 	title: string;
@@ -67,7 +67,7 @@ const collectionCount = Object.keys(collectionFiles).length;
 <Layout title="Statistics - Adrian Villanueva" description="Photography portfolio statistics: total photos, collections, and gear used.">
   <Header currentPage="stats" />
 
-  <main class="main">
+  <main id="main-content" class="main">
     <section class="stats-section">
       <div class="stats-container">
         <h1>{statsData.title}</h1>

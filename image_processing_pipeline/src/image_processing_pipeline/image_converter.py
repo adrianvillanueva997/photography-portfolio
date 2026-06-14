@@ -18,7 +18,7 @@ class ImageConverter:
         Initialize converter with quality and compression settings.
 
         Args:
-            output_quality: AVIF quality (0-100, default 85)
+            output_quality: Output quality (0-100, default 85)
             compression_effort: Compression effort level (0-9, default 7).
                 Higher values produce better compression at the cost of
                 encoding speed — ideal for offline pipelines.
@@ -35,16 +35,24 @@ class ImageConverter:
         self.strip_metadata = strip_metadata
         self.sharpen = sharpen
 
-    def _save_options(self, **overrides) -> dict:
-        """Build common AVIF save keyword arguments."""
-        opts: dict = {
-            "Q": self.output_quality,
-            "effort": self.compression_effort,
-            "bitdepth": 12,
-            "subsample_mode": self.subsample_mode,
-        }
-        if self.strip_metadata:
-            opts["keep"] = "icc"  # retain ICC profile for colour accuracy
+    def _save_options(self, output_format: str = "avif", **overrides) -> dict:
+        """Build format-specific save keyword arguments."""
+        opts: dict = {"Q": self.output_quality}
+
+        if output_format == "avif":
+            opts["effort"] = self.compression_effort
+            opts["bitdepth"] = 12
+            opts["subsample_mode"] = self.subsample_mode
+            if self.strip_metadata:
+                opts["keep"] = "icc"
+        elif output_format == "webp":
+            opts["effort"] = min(self.compression_effort, 6)
+            if self.strip_metadata:
+                opts["keep"] = "icc"
+        else:
+            if self.strip_metadata:
+                opts["keep"] = "icc"
+
         opts.update(overrides)
         return opts
 
@@ -76,7 +84,7 @@ class ImageConverter:
 
         try:
             image = pyvips.Image.new_from_file(str(input_path), access="sequential")
-            image.write_to_file(str(output_path), **self._save_options())
+            image.write_to_file(str(output_path), **self._save_options(output_format))
             return str(output_path)
         except Exception as e:
             raise IOError(f"Failed to convert image {photo}: {str(e)}") from e
@@ -125,7 +133,7 @@ class ImageConverter:
             if self.sharpen:
                 image = image.sharpen(sigma=1.0, x1=1.5, y2=5, y3=10, m1=0, m2=2)
 
-            image.write_to_file(str(output_path), **self._save_options())
+            image.write_to_file(str(output_path), **self._save_options(output_format))
             return str(output_path)
         except Exception as e:
             raise IOError(f"Failed to resize image {photo}: {str(e)}") from e
@@ -137,6 +145,7 @@ class ImageConverter:
         output_format: str = "avif",
         sizes: Optional[dict[str, int]] = None,
         include_responsive_widths: bool = False,
+        also_webp: bool = True,
     ) -> dict[str, str]:
         """
         Generate multiple responsive image sizes from a single source.
@@ -148,6 +157,7 @@ class ImageConverter:
             sizes: Dict of size names to widths. Defaults to:
                    {'thumbnail': 350, 'collection': 700, 'display': 1400}
             include_responsive_widths: If True, also generate 400w, 800w, 1600w variants
+            also_webp: If True, also generate WebP versions of each size
 
         Returns:
             Dictionary mapping size names to output paths
@@ -179,6 +189,15 @@ class ImageConverter:
             except IOError as e:
                 raise IOError(f"Failed to generate {size_name} size: {str(e)}") from e
 
+            # Also generate WebP version
+            if also_webp and output_format == "avif":
+                webp_filename = f"{stem}-{size_name}.webp"
+                webp_path = str(output_dir_path / webp_filename)
+                try:
+                    self.resize_and_convert(photo, width, webp_path, "webp")
+                except IOError as e:
+                    raise IOError(f"Failed to generate {size_name} WebP: {str(e)}") from e
+
         # Generate additional responsive widths for srcset
         if include_responsive_widths:
             responsive_sizes = {"400w": 400, "800w": 800, "1600w": 1600}
@@ -191,5 +210,13 @@ class ImageConverter:
                     )
                 except IOError as e:
                     raise IOError(f"Failed to generate {width_label} size: {str(e)}") from e
+
+                if also_webp and output_format == "avif":
+                    webp_filename = f"{stem}-{width_label}.webp"
+                    webp_path = str(output_dir_path / webp_filename)
+                    try:
+                        self.resize_and_convert(photo, width_px, webp_path, "webp")
+                    except IOError as e:
+                        raise IOError(f"Failed to generate {width_label} WebP: {str(e)}") from e
 
         return results
