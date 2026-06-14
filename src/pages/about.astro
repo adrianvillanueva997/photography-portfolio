@@ -5,7 +5,7 @@ import Footer from "../components/Footer.astro";
 import yaml from "js-yaml";
 
 const aboutFile = await import("../data/about.yaml?raw", {
-	assert: { type: "raw" },
+	with: { type: "raw" },
 });
 const aboutData = yaml.load(aboutFile.default) as {
 	title: string;
@@ -23,7 +23,7 @@ const aboutData = yaml.load(aboutFile.default) as {
 <Layout title="About - Adrian Villanueva" description="Learn about Adrian Villanueva, a Tokyo-based photographer. Specializing in urban and nature photography.">
   <Header currentPage="about" />
 
-  <main class="main">
+  <main id="main-content" class="main">
     <section class="about-section">
       <div class="about-container">
         <h1>About Me</h1>
@@ -32,14 +32,16 @@ const aboutData = yaml.load(aboutFile.default) as {
           <div class="about-text">
             {aboutData.bio.map((section) => (
               <>
-                <h2>{section.section}</h2>
+                <h2 class="section-title">{section.section}</h2>
                 {section.content.split('\n').map((paragraph) => (
                   <p>{paragraph.trim()}</p>
                 ))}
               </>
             ))}
 
-            <h2>Camera Equipment</h2>
+            <div class="ornamental-divider">✦</div>
+
+            <h2 class="section-title">Camera Equipment</h2>
             <div class="gear-section">
               {aboutData.gear.primary && aboutData.gear.primary.length > 0 && (
                 <div class="gear-item">
@@ -95,7 +97,9 @@ const aboutData = yaml.load(aboutFile.default) as {
               )}
             </div>
 
-            <h2>Get in Touch</h2>
+            <div class="ornamental-divider">✦</div>
+
+            <h2 class="section-title">Get in Touch</h2>
             <p>{aboutData.contact.intro}</p>
             <div class="contact-links">
               {aboutData.contact.links.map((link) => (

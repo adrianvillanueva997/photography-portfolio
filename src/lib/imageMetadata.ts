@@ -1,13 +1,3 @@
-/**
- * Image Metadata Loader
- * 
- * Loads and caches JSON sidecar metadata for images.
- * Follows the pattern: image-stem.avif + image-stem-metadata.json
- * 
- * Usage:
- * const metadata = await loadImageMetadata('R0012128');
- */
-
 export interface ImageMetadata {
   camera_make?: string;
   camera_model?: string;
@@ -19,14 +9,12 @@ export interface ImageMetadata {
   date_taken?: string;
 }
 
-// In-memory cache to avoid repeated loads
 const metadataCache = new Map<string, ImageMetadata>();
 
 export async function loadImageMetadata(
   imageStem: string,
   baseUrl: string = "/metadata"
 ): Promise<ImageMetadata | null> {
-  // Check cache first
   if (metadataCache.has(imageStem)) {
     return metadataCache.get(imageStem) || null;
   }
@@ -47,9 +35,6 @@ export async function loadImageMetadata(
   }
 }
 
-/**
- * Format exposure metadata for human-readable display
- */
 export function formatExposureData(metadata: ImageMetadata): Record<string, string> {
   const parts: Record<string, string> = {};
 
@@ -83,7 +68,6 @@ export function formatExposureData(metadata: ImageMetadata): Record<string, stri
   }
 
   if (metadata.date_taken) {
-    // Parse EXIF date format: "2021:09:12 05:43:33"
     const dateStr = metadata.date_taken.replace(/:/g, "-").split(" ")[0];
     parts.date = dateStr;
   }
@@ -91,9 +75,6 @@ export function formatExposureData(metadata: ImageMetadata): Record<string, stri
   return parts;
 }
 
-/**
- * Generate JSON-LD schema for image (SEO)
- */
 export function generateImageSchema(
   imageSrc: string,
   title: string,
@@ -122,9 +103,7 @@ export function generateImageSchema(
     }),
   };
 }
-/**
- * Generate JSON-LD schema for collection (SEO)
- */
+
 export function generateCollectionSchema(
   collectionName: string,
   collectionDescription: string,
@@ -147,11 +126,59 @@ export function generateCollectionSchema(
       name: "Adrian Villanueva Photography",
       url: "https://avm.photography",
     },
-    image: imageUrls.slice(0, 5), // Include first 5 images
+    image: imageUrls.slice(0, 5),
     associatedMedia: imageUrls.map((url, index) => ({
       "@type": "ImageObject",
       url: url,
       name: `Photo ${index + 1}`,
     })),
   };
+}
+
+export function generatePersonSchema() {
+  return {
+    "@context": "https://schema.org/",
+    "@type": "Person",
+    name: "Adrian Villanueva",
+    givenName: "Adrian",
+    familyName: "Villanueva",
+    jobTitle: "Photographer",
+    worksFor: {
+      "@type": "Person",
+      name: "Adrian Villanueva",
+    },
+    url: "https://avm.photography",
+    sameAs: [],
+  };
+}
+
+interface Photo {
+  id?: string;
+  image: string;
+  metadata?: {
+    dateTaken: string;
+    [key: string]: any;
+  };
+  [key: string]: any;
+}
+
+export function uniqueIdFromImage(photo: Photo): string {
+  const filename = photo.image.split('/').pop()?.replace(/\.[^.]+$/, '') || photo.id || '';
+  return filename;
+}
+
+export function sortPhotosByDate<T extends Photo>(photos: T[]): T[] {
+  return [...photos].sort((a, b) => {
+    const dateStrA = a.metadata ? String(a.metadata.dateTaken) : '';
+    const dateStrB = b.metadata ? String(b.metadata.dateTaken) : '';
+    const parsedA = dateStrA.replace(/(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3');
+    const parsedB = dateStrB.replace(/(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3');
+    const dateA = new Date(parsedA);
+    const dateB = new Date(parsedB);
+    const timeA = dateA.getTime();
+    const timeB = dateB.getTime();
+    if (isNaN(timeA)) return 1;
+    if (isNaN(timeB)) return -1;
+    return timeB - timeA;
+  });
 }

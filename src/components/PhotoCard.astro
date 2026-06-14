@@ -1,6 +1,13 @@
 ---
 import Lightbox from "./Lightbox.astro";
 
+interface Settings {
+	iso: number | number[];
+	aperture: string;
+	shutter: string;
+	focalLength: number | string;
+}
+
 interface Props {
 	id: string;
 	title: string;
@@ -8,28 +15,40 @@ interface Props {
 	metadata: {
 		camera: string;
 		lens: string;
-		settings: {
-			iso: number;
-			aperture: string;
-			shutter: string;
-			focalLength: number | string;
-		};
+		settings: Settings;
 		location: string;
 		dateTaken: string;
 	};
 }
 
 const { id, title, image, metadata } = Astro.props;
+
+// Derive alternate size URLs from the display image URL
+// image = ".../R0012164-display.avif" → thumbnail: ".../R0012164-thumbnail.avif", etc.
+const baseUrl = image.replace(/-display\.\w+$/, '');
+const ext = image.match(/\.(\w+)$/)?.[1] || 'avif';
+const thumbnailUrl = `${baseUrl}-thumbnail.${ext}`;
+const collectionUrl = `${baseUrl}-collection.${ext}`;
+const displayUrl = `${baseUrl}-display.${ext}`;
+const thumbWebp = `${baseUrl}-thumbnail.webp`;
+const collWebp = `${baseUrl}-collection.webp`;
+const displayWebp = `${baseUrl}-display.webp`;
+
+const isoValue = Array.isArray(metadata.settings.iso) ? metadata.settings.iso[0] : metadata.settings.iso;
 ---
 
 <div class="photo-card">
-  <div class="photo-wrapper" data-lightbox-trigger={id} role="button" tabindex="0" aria-label={`View ${title} in fullscreen`}>
+  <button class="photo-wrapper" data-lightbox-trigger={id} type="button" aria-label={`View ${title} in fullscreen`}>
     <div class="photo-inner">
-      <img src={image} alt={title} loading="lazy" />
+      <picture>
+        <source srcset={`${displayUrl} 1400w, ${collectionUrl} 700w, ${thumbnailUrl} 350w`} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1400px) 33vw, 25vw" type="image/avif" />
+        <source srcset={`${displayWebp} 1400w, ${collWebp} 700w, ${thumbWebp} 350w`} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1400px) 33vw, 25vw" type="image/webp" />
+        <img src={thumbnailUrl} alt={title} loading="lazy" decoding="async" width="350" height="auto" />
+      </picture>
       <div class="overlay">
         <div class="overlay-top">
           <span class="film-code">{metadata.settings.aperture}</span>
-          <span class="film-code">ISO {metadata.settings.iso}</span>
+          <span class="film-code">ISO {isoValue}</span>
         </div>
         <div class="overlay-bottom">
           <h3>{title}</h3>
@@ -42,37 +61,28 @@ const { id, title, image, metadata } = Astro.props;
       <span class="film-edge-dot"></span>
       <span class="film-edge-text">{metadata.settings.shutter}</span>
     </div>
-  </div>
+  </button>
 </div>
 
-<Lightbox id={id} image={image} title={title} metadata={metadata} />
+<Lightbox id={id} image={displayUrl} thumbnail={thumbnailUrl} title={title} metadata={metadata} />
 
 <script>
-  // Global setup for all photo cards - runs once
   if (!window.__photoCardsInitialized) {
     window.__photoCardsInitialized = true;
-    
-    document.addEventListener('click', (e) => {
-      const photoWrapper = (e.target as HTMLElement).closest('[data-lightbox-trigger]');
-      if (!photoWrapper) return;
-      
-      const photoId = photoWrapper.getAttribute('data-lightbox-trigger');
-      if (!photoId) return;
-      
-      const lightbox = document.getElementById(`lightbox-${photoId}`);
-      if (lightbox) {
-        lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      }
-    });
 
-    // Handle keyboard navigation
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        const focused = document.activeElement as HTMLElement;
-        if (focused?.hasAttribute('data-lightbox-trigger')) {
-          e.preventDefault();
-          focused.click();
+    document.addEventListener('click', function(e) {
+      var photoWrapper = e.target.closest('[data-lightbox-trigger]');
+      if (!photoWrapper) return;
+
+      var photoId = photoWrapper.getAttribute('data-lightbox-trigger');
+      if (!photoId) return;
+
+      var lightbox = document.getElementById('lightbox-' + photoId);
+      if (lightbox) {
+        if (lightbox.__open) {
+          lightbox.__open();
+        } else {
+          lightbox.classList.add('active');
         }
       }
     });
@@ -94,6 +104,19 @@ const { id, title, image, metadata } = Astro.props;
     background: #000;
     border: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    display: block;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    padding: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    background: none;
+  }
+
+  .photo-wrapper:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-primary), 0 0 14px var(--color-primary);
   }
 
   .photo-wrapper:hover {

@@ -1,5 +1,6 @@
 ---
 import Logo from "./Logo.astro";
+import { NAV_ITEMS } from "../consts";
 
 interface Props {
 	currentPage?: string;
@@ -15,17 +16,54 @@ const { currentPage } = Astro.props;
       <span class="logo-text">Adrian Villanueva</span>
     </a>
     <nav class="nav" role="navigation" aria-label="Main navigation">
-      <a href="/" class={currentPage === 'home' ? 'active' : ''} aria-current={currentPage === 'home' ? 'page' : undefined}>Home</a>
-      <span class="nav-dot" aria-hidden="true"></span>
-      <a href="/collections" class={currentPage === 'collections' ? 'active' : ''} aria-current={currentPage === 'collections' ? 'page' : undefined}>Collections</a>
-      <span class="nav-dot" aria-hidden="true"></span>
-      <a href="/stats" class={currentPage === 'stats' ? 'active' : ''} aria-current={currentPage === 'stats' ? 'page' : undefined}>Stats</a>
-      <span class="nav-dot" aria-hidden="true"></span>
-      <a href="/about" class={currentPage === 'about' ? 'active' : ''} aria-current={currentPage === 'about' ? 'page' : undefined}>About</a>
+      {
+        NAV_ITEMS.map((item, i) => (
+          <>
+            {i > 0 && <span class="nav-dot" aria-hidden="true"></span>}
+            <a href={item.href} class={currentPage === item.id ? 'active' : ''} aria-current={currentPage === item.id ? 'page' : undefined}>{item.label}</a>
+          </>
+        ))
+      }
     </nav>
+    <button class="mobile-toggle" aria-label="Toggle menu" aria-expanded="false">
+      <span class="hamburger"></span>
+      <span class="hamburger"></span>
+      <span class="hamburger"></span>
+    </button>
   </div>
   <div class="header-line" aria-hidden="true"></div>
 </header>
+
+<script>
+  const toggle = document.querySelector('.mobile-toggle');
+  const nav = document.querySelector('.nav');
+
+  toggle?.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', (!expanded).toString());
+    nav?.classList.toggle('open');
+    document.body.classList.toggle('menu-open');
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && nav?.classList.contains('open')) {
+      nav.classList.remove('open');
+      toggle?.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('menu-open');
+      toggle?.focus();
+    }
+  });
+
+  // Close when link clicked
+  nav?.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      nav.classList.remove('open');
+      toggle?.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('menu-open');
+    });
+  });
+</script>
 
 <style>
   .header {
@@ -112,18 +150,11 @@ const { currentPage } = Astro.props;
 
   .nav a.active {
     color: var(--color-primary);
+    text-shadow: 0 0 8px rgba(200, 164, 90, 0.4);
   }
 
   .nav a.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--color-primary);
+    display: none;
   }
 
   @media (max-width: 768px) {
@@ -153,6 +184,37 @@ const { currentPage } = Astro.props;
     }
   }
 
+  .mobile-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 200;
+  }
+
+  .hamburger {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--color-text-secondary);
+    transition: all 0.3s ease;
+  }
+
+  .mobile-toggle[aria-expanded="true"] .hamburger:nth-child(1) {
+    transform: rotate(45deg) translate(4px, 4px);
+  }
+
+  .mobile-toggle[aria-expanded="true"] .hamburger:nth-child(2) {
+    opacity: 0;
+  }
+
+  .mobile-toggle[aria-expanded="true"] .hamburger:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+
   @media (max-width: 480px) {
     .header-container {
       padding: 0.75rem 1rem;
@@ -164,23 +226,56 @@ const { currentPage } = Astro.props;
 
     .logo-text {
       font-size: 0.75rem;
-    }
-
-    .nav a {
-      font-size: 0.6rem;
-      padding: 0.35rem 0.35rem;
-      letter-spacing: 0.05em;
-    }
-  }
-
-  @media (max-width: 360px) {
-    .logo-text {
       display: none;
     }
 
-    .nav a {
-      font-size: 0.6rem;
-      padding: 0.35rem 0.4rem;
+    .mobile-toggle {
+      display: flex;
     }
+
+    .nav {
+      display: none;
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 70%;
+      max-width: 260px;
+      height: 100vh;
+      background: var(--color-bg);
+      flex-direction: column;
+      gap: 0;
+      padding: 5rem 2rem 2rem;
+      border-left: 1px solid var(--color-border);
+      z-index: 150;
+      transition: right 0.3s ease;
+    }
+
+    .nav.open {
+      display: flex;
+      right: 0;
+    }
+
+    .nav a {
+      font-size: 0.85rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--color-border);
+      width: 100%;
+    }
+
+    .nav a.active::after {
+      display: none;
+    }
+  }
+
+  :global(body.menu-open) {
+    overflow: hidden;
+  }
+
+  :global(body.menu-open::after) {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 140;
   }
 </style>

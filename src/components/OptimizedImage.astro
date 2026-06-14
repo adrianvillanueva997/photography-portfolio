@@ -1,98 +1,62 @@
 ---
-/**
- * OptimizedImage Component
- * 
- * Renders responsive images with:
- * - AVIF (primary), WebP (fallback), JPEG (safety net)
- * - Proper srcset and sizes for viewport-aware loading
- * - Lazy loading with native `loading="lazy"`
- * - LQIP (Low Quality Image Placeholder) support
- * - Semantic alt text
- * 
- * Usage:
- * <OptimizedImage 
- *   src="/photos/image-display.avif"
- *   alt="Tokyo street"
- *   widths={[400, 800, 1600]}
- *   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
- *   priority={false}
- *   metadata={{ camera: "RICOH GR III", ... }}
- * />
- */
-
 interface Props {
   src: string;
   alt: string;
-  widths?: number[];
   sizes?: string;
   priority?: boolean;
   loading?: "lazy" | "eager";
   decoding?: "sync" | "async" | "auto";
   metadata?: Record<string, any>;
   class?: string;
-  blurPlaceholder?: string;
 }
 
 const {
   src,
   alt,
-  widths = [400, 800, 1600],
-  sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px",
+  sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1400px) 33vw, 25vw",
   priority = false,
   loading = priority ? "eager" : "lazy",
   decoding = "async",
   metadata,
   class: className,
-  blurPlaceholder,
 } = Astro.props;
 
-// Extract base filename and construct multiple format URLs
-const basePath = src.replace(/\.(avif|webp|jpg|jpeg|png)$/i, "");
-const ext = src.match(/\.(avif|webp|jpg|jpeg|png)$/i)?.[1]?.toLowerCase() || "avif";
+// Derive size-specific URLs from the display URL
+// Input: https://cdn.../R0012164-display.avif
+// Outputs: thumbnail (350w), collection (700w), display (1400w)
+const baseUrl = src.replace(/-display\.\w+$/, '');
+const ext = src.match(/\.(\w+)$/)?.[1]?.toLowerCase() || 'avif';
+const thumbnailUrl = `${baseUrl}-thumbnail.${ext}`;
+const collectionUrl = `${baseUrl}-collection.${ext}`;
+const displayUrl = `${baseUrl}-display.${ext}`;
 
-// Build srcset for each width
-const buildSrcset = (format: string) => {
-  if (widths.length === 0) return "";
-  return widths
-    .map((width) => {
-      const filename = `${basePath}-${width}.${format}`;
-      return `${filename} ${width}w`;
-    })
-    .join(", ");
-};
+// WebP variants
+const thumbWebp = `${baseUrl}-thumbnail.webp`;
+const collWebp = `${baseUrl}-collection.webp`;
+const displayWebp = `${baseUrl}-display.webp`;
 
-// Default display width (largest for <img> fallback)
-const defaultWidth = widths.length > 0 ? Math.max(...widths) : undefined;
-const defaultSrc = defaultWidth ? `${basePath}-${defaultWidth}.${ext}` : src;
-const avifSrcset = buildSrcset("avif");
-const webpSrcset = buildSrcset("webp");
+// Srcset with known widths
+const avifSrcset = `${thumbnailUrl} 350w, ${collectionUrl} 700w, ${displayUrl} 1400w`;
+const webpSrcset = `${thumbWebp} 350w, ${collWebp} 700w, ${displayWebp} 1400w`;
 
-// Preload only for critical images (LCP candidates)
-const preload = priority ? "preload" : undefined;
+const preloadLink = priority ? displayUrl : undefined;
 ---
 
 <picture class={`optimized-image ${className || ""}`} data-metadata={metadata ? JSON.stringify(metadata) : undefined}>
-  <!-- AVIF: Modern, best compression (~30% smaller than WebP) -->
-  <source srcset={avifSrcset} sizes={sizes} type="image/avif" />
-  
-  <!-- WebP: Good browser support, ~25% smaller than JPEG -->
   <source srcset={webpSrcset} sizes={sizes} type="image/webp" />
-  
-  <!-- Fallback JPEG: Maximum compatibility -->
+  <source srcset={avifSrcset} sizes={sizes} type="image/avif" />
   <img
-    src={defaultSrc}
+    src={thumbnailUrl}
     alt={alt}
     loading={loading}
     decoding={decoding}
-    class:list={["optimized-img", { "with-blur": blurPlaceholder }]}
-    data-blur={blurPlaceholder}
-    width={defaultWidth}
+    width="350"
     height="auto"
   />
 </picture>
 
 {priority && (
-  <link rel="preload" as="image" href={avifSrcset.split(",")[0].trim().split(" ")[0]} type="image/avif" />
+  <link rel="preload" as="image" href={displayUrl} type={`image/${ext}`} />
 )}
 
 <style>
@@ -102,44 +66,10 @@ const preload = priority ? "preload" : undefined;
     height: auto;
   }
 
-  .optimized-img {
+  .optimized-image img {
     display: block;
     width: 100%;
     height: auto;
-    /* Prevent cumulative layout shift */
-    aspect-ratio: auto;
-  }
-
-  /* LQIP blur effect */
-  .optimized-img.with-blur {
-    background-size: cover;
-    background-position: center;
-  }
-
-  .optimized-img.with-blur[data-blur] {
-    background-image: attr(data-blur);
-  }
-
-  /* Optimize for rendering performance */
-  .optimized-img {
     contain: layout style paint;
   }
 </style>
-
-<script>
-  /**
-   * Progressive image loading with blur removal
-   * Removes blur placeholder once image loads
-   */
-  if (typeof window !== "undefined") {
-    document.querySelectorAll(".optimized-img.with-blur").forEach((img) => {
-      if ((img as HTMLImageElement).complete) {
-        img.classList.remove("with-blur");
-      } else {
-        img.addEventListener("load", () => {
-          img.classList.remove("with-blur");
-        });
-      }
-    });
-  }
-</script>

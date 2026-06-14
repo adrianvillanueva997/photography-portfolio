@@ -1,0 +1,307 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import Watermark from "../../components/Watermark.astro";
+import { generateImageSchema, generatePersonSchema } from "../../lib/imageMetadata.ts";
+import yaml from "js-yaml";
+
+interface Photo {
+	id: string;
+	title: string;
+	image: string;
+	thumbnail: string;
+	metadata: {
+		camera: string;
+		lens: string;
+		settings: {
+			iso: number | number[];
+			aperture: string;
+			shutter: string;
+			focalLength: number | string;
+		};
+		location: string;
+		dateTaken: string;
+	};
+}
+
+interface Collection {
+	collection: string;
+	description: string;
+	photos: Photo[];
+}
+
+export async function getStaticPaths() {
+	const collectionFiles = import.meta.glob("../../data/collections/*.yaml", {
+		query: "?raw",
+		import: "default",
+	});
+	const paths: Array<{ params: { slug: string }; props: { photo: Photo; collection: string } }> = [];
+
+	for (const [path, getContent] of Object.entries(collectionFiles)) {
+		const content = (await getContent()) as string;
+		const data = yaml.load(content) as Collection;
+		const collectionSlug = path.split("/").pop()?.replace(".yaml", "") || "";
+
+		for (const photo of data.photos) {
+			const filename = photo.image.split('/').pop()?.replace(/\.[^.]+$/, '') || photo.id;
+			paths.push({
+				params: { slug: filename },
+				props: { photo, collection: collectionSlug },
+			});
+		}
+	}
+
+	return paths;
+}
+
+const { photo, collection } = Astro.props;
+
+const isoValue = Array.isArray(photo.metadata.settings.iso) ? photo.metadata.settings.iso[0] : photo.metadata.settings.iso;
+const imageSchema = generateImageSchema(photo.image, `${photo.title} - Adrian Villanueva`, {
+	camera_make: photo.metadata.camera.split(' ')[0],
+	camera_model: photo.metadata.camera,
+	lens: photo.metadata.lens,
+	iso: isoValue,
+	aperture: photo.metadata.settings.aperture,
+	shutter_speed: photo.metadata.settings.shutter,
+	focal_length_35mm: String(photo.metadata.settings.focalLength),
+	date_taken: photo.metadata.dateTaken,
+});
+const personSchema = generatePersonSchema();
+const pageTitle = `${photo.title} - Photography by Adrian Villanueva`;
+const pageUrl = `https://avm.photography/photos/${photo.image.split('/').pop()?.replace(/\.[^.]+$/, '') || photo.id}`;
+const baseUrl = photo.image.replace(/-display\.\w+$/, '');
+const ext = photo.image.match(/\.(\w+)$/)?.[1] || 'avif';
+const thumbnailUrl = `${baseUrl}-thumbnail.${ext}`;
+const displayWebp = `${baseUrl}-display.webp`;
+---
+
+<Layout title={pageTitle} description={`${photo.title} — captured in ${photo.metadata.location} with ${photo.metadata.camera}.`} image={photo.image} url={`/photos/${photo.image.split('/').pop()?.replace(/\.[^.]+$/, '') || photo.id}`}>
+  <script type="application/ld+json" set:html={JSON.stringify(imageSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+
+  <Header />
+
+  <main id="main-content" class="main">
+    <article class="photo-page">
+      <div class="photo-container">
+        <div class="image-section">
+          <picture>
+            <source srcset={photo.image} type="image/avif" />
+            <source srcset={displayWebp} type="image/webp" />
+            <img src={photo.image} alt={photo.title} width="1400" height="auto" />
+          </picture>
+          <Watermark photographer="© Adrian Villanueva" />
+        </div>
+
+        <div class="info-section">
+          <nav class="breadcrumb">
+            <a href="/collections">Collections</a>
+            <span class="sep">/</span>
+            <a href={`/collections/${collection}`}>{collection}</a>
+            <span class="sep">/</span>
+            <span>{photo.title}</span>
+          </nav>
+
+          <h1 class="photo-title">{photo.title}</h1>
+
+          <div class="metadata-grid">
+            <div class="meta-item">
+              <span class="meta-label">Camera</span>
+              <span class="meta-value">{photo.metadata.camera}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Lens</span>
+              <span class="meta-value">{photo.metadata.lens}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Aperture</span>
+              <span class="meta-value">{photo.metadata.settings.aperture}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Shutter</span>
+              <span class="meta-value">{photo.metadata.settings.shutter}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">ISO</span>
+              <span class="meta-value">{isoValue}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Focal Length</span>
+              <span class="meta-value">{photo.metadata.settings.focalLength}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Location</span>
+              <span class="meta-value">{photo.metadata.location}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Date</span>
+              <span class="meta-value">{photo.metadata.dateTaken.replace(/:/g, '.')}</span>
+            </div>
+          </div>
+
+          <div class="back-link">
+            <a href={`/collections/${collection}`}>&larr; Back to {collection}</a>
+          </div>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  .main {
+    min-height: calc(100vh - 200px);
+  }
+
+  .photo-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .photo-container {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .image-section {
+    position: relative;
+    background: #000;
+    border: 1px solid rgba(255,255,255,0.08);
+    overflow: hidden;
+  }
+
+  .image-section img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 85vh;
+    object-fit: contain;
+  }
+
+  .info-section {
+    position: sticky;
+    top: 6rem;
+  }
+
+  .breadcrumb {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb a {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--color-primary);
+  }
+
+  .sep {
+    color: var(--color-border-light);
+    opacity: 0.4;
+  }
+
+  .breadcrumb span:last-child {
+    color: var(--color-text-secondary);
+    opacity: 0.5;
+  }
+
+  .photo-title {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--color-text);
+    margin-bottom: 2rem;
+    line-height: 1.2;
+  }
+
+  .metadata-grid {
+    display: grid;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    opacity: 0.5;
+  }
+
+  .meta-value {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-text);
+  }
+
+  .back-link {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .back-link a {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .back-link a:hover {
+    color: var(--color-primary);
+  }
+
+  @media (max-width: 968px) {
+    .photo-container {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .photo-page {
+      padding: 2rem 1.25rem;
+    }
+
+    .info-section {
+      position: static;
+    }
+
+    .photo-title {
+      font-size: 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .photo-page {
+      padding: 1.5rem 1rem;
+    }
+
+    .photo-title {
+      font-size: 1.25rem;
+    }
+  }
+</style>

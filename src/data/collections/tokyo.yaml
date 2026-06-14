@@ -1,18 +1,34 @@
 collection: Tokyo Streets
 description: Exploring the vibrant streets of Tokyo
 photos:
-  - id: photo-001
+  - id: jinbocho-passing-reader
+    title: Passing reader in 神保町 (Jinbōchō)
+    image: https://cdn.avm.photography/collections/tokyo/R0012164-display.avif
+    collection: https://cdn.avm.photography/collections/tokyo/R0012164-collection.avif
+    thumbnail: https://cdn.avm.photography/collections/tokyo/R0012164-thumbnail.avif
+    metadata:
+      camera: RICOH IMAGING COMPANY, LTD. RICOH GR III
+      lens: RICOH GR LENS 28mm F2.8
+      settings:
+        iso:
+          - 200
+        aperture: f/4.0
+        shutter: 1/60
+        focalLength: 28mm
+      location: Jinbōchō, Tokyo, Japan
+      dateTaken: 2021:09:19
+  - id: winter-dappled-light
     title: Winter Dappled Light, 冬の木漏れ日
     image: https://cdn.avm.photography/collections/tokyo/R0012342-display.avif
-    collection: https://cdn.avm.photography/collections/toyko/R0012342-collection.avif
-    thumbnail: https://cdn.avm.photography/collections/tokyo/0012342-thumbnail.avif
+    collection: https://cdn.avm.photography/collections/tokyo/R0012342-collection.avif
+    thumbnail: https://cdn.avm.photography/collections/tokyo/R0012342-thumbnail.avif
     metadata:
       camera: RICOH IMAGING COMPANY, LTD. RICOH GR III
       lens: Unknown
       settings:
         iso:
           - 200
-        aperture: f/90.5
+        aperture: f/16
         shutter: 1/10
         focalLength: 28mm
       location: 江戸東京たてもの園, 東京

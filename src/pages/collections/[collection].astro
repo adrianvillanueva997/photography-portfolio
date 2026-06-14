@@ -4,7 +4,7 @@ import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
 import PhotoCard from "../../components/PhotoCard.astro";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
-import { generateCollectionSchema } from "../../lib/imageMetadata.ts";
+import { generateCollectionSchema, uniqueIdFromImage, sortPhotosByDate } from "../../lib/imageMetadata.ts";
 import yaml from "js-yaml";
 
 interface Photo {
@@ -16,7 +16,7 @@ interface Photo {
 		camera: string;
 		lens: string;
 		settings: {
-			iso: number;
+			iso: number | number[];
 			aperture: string;
 			shutter: string;
 			focalLength: number | string;
@@ -67,29 +67,7 @@ if (!data) {
 	throw new Error(`Collection ${collection} not found`);
 }
 
-// Derive a unique ID from the image URL filename
-function uniqueIdFromImage(photo: Photo): string {
-	const filename = photo.image.split('/').pop()?.replace(/\.[^.]+$/, '') || photo.id;
-	return filename;
-}
-
-// Sort photos by dateTaken in descending order (most recent first)
-const sortedPhotos = [...data.photos].sort((a, b) => {
-	const dateStrA = String(a.metadata.dateTaken);
-	const dateStrB = String(b.metadata.dateTaken);
-	// Replace colons only in date part (YYYY:MM:DD format)
-	const parsedA = dateStrA.replace(/(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3');
-	const parsedB = dateStrB.replace(/(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3');
-	const dateA = new Date(parsedA);
-	const dateB = new Date(parsedB);
-	const timeA = dateA.getTime();
-	const timeB = dateB.getTime();
-	// Handle invalid dates
-	if (isNaN(timeA)) return 1; // a is invalid, push to end
-	if (isNaN(timeB)) return -1; // b is invalid, push to end
-	return timeB - timeA; // newest first (descending)
-});
-data.photos = sortedPhotos;
+data.photos = sortPhotosByDate(data.photos);
 
 // Generate JSON-LD schema for collection
 const imageUrls = data.photos.map(photo => photo.image);
@@ -103,12 +81,11 @@ const collectionSchema = generateCollectionSchema(
 ---
 
 <Layout title={`${data.collection} - Adrian Villanueva`} description={data.description} image={data.photos[0]?.image}>
-  <!-- JSON-LD Schema for SEO -->
   <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
 
   <Header currentPage="collections" />
 
-  <main class="main">
+  <main id="main-content" class="main">
     <section class="collection-header">
       <div class="header-container">
         <Breadcrumbs collection={data.collection} />
@@ -270,17 +247,15 @@ const collectionSchema = generateCollectionSchema(
 
     .gallery-grid {
       padding: 1.5rem 1rem;
-      gap: 1rem;
     }
   }
 
   @media (max-width: 640px) {
     .gallery-grid {
       columns: 1;
-      gap: 1.5rem;
+      gap: 0;
       padding: 1.5rem 1rem;
     }
-  }
 
     .tag-count {
       margin-left: 0;
@@ -294,13 +269,6 @@ const collectionSchema = generateCollectionSchema(
 
     h1 {
       font-size: clamp(1.75rem, 6vw, 2.5rem);
-    }
-  }
-
-  @media (max-width: 640px) {
-    .gallery-grid {
-      columns: 1;
-      gap: 0;
     }
   }
 
