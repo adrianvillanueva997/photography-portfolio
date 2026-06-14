@@ -58,25 +58,23 @@ test.describe('Stats', () => {
 test.describe('Lightbox', () => {
   test('opens on photo click', async ({ page }) => {
     await page.goto('/');
-    const firstPhoto = page.locator('[data-lightbox-trigger]').first();
-    await firstPhoto.click();
-    const lightbox = page.locator('[role="dialog"]');
-    await expect(lightbox).toHaveClass(/active/);
+    await page.locator('[data-lightbox-trigger]').first().click();
+    await expect(page.locator('[role="dialog"].active')).toBeVisible();
   });
 
   test('closes on Escape key', async ({ page }) => {
     await page.goto('/');
     await page.locator('[data-lightbox-trigger]').first().click();
-    await expect(page.locator('[role="dialog"]')).toHaveClass(/active/);
+    await expect(page.locator('[role="dialog"].active')).toBeVisible();
     await page.keyboard.press('Escape');
-    await expect(page.locator('[role="dialog"]')).not.toHaveClass(/active/);
+    await expect(page.locator('[role="dialog"].active')).toHaveCount(0);
   });
 
   test('closes on close button click', async ({ page }) => {
     await page.goto('/');
     await page.locator('[data-lightbox-trigger]').first().click();
-    await page.locator('.lightbox-close').click();
-    await expect(page.locator('[role="dialog"]')).not.toHaveClass(/active/);
+    await page.locator('[role="dialog"].active .lightbox-close').click();
+    await expect(page.locator('[role="dialog"].active')).toHaveCount(0);
   });
 });
 
