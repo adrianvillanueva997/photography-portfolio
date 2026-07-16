@@ -1,53 +1,44 @@
 ---
 interface Props {
-	photographer?: string;
+  photographer?: string;
 }
 
-const { photographer = "© Adrian Villanueva" }: Props = Astro.props;
+const { photographer = "© Adrian Villanueva" } = Astro.props;
 ---
 
-<div class="watermark">
+<div class="watermark" aria-hidden="true">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" class="watermark-svg">
-    <text x="100" y="28" text-anchor="middle" class="watermark-text">{`${photographer}`}</text>
+    <text x="100" y="28" text-anchor="middle" class="text">{photographer}</text>
   </svg>
 </div>
 
 <style>
   .watermark {
     position: absolute;
-    bottom: 1rem;
-    right: 1rem;
-    width: 180px;
-    height: 40px;
+    bottom: var(--space-md);
+    right: var(--space-md);
+    width: 160px;
+    height: 36px;
     pointer-events: none;
     z-index: 10;
   }
 
-  .watermark-svg {
-    width: 100%;
-    height: 100%;
-    color: var(--color-primary);
-  }
+  .watermark-svg { width: 100%; height: 100%; }
 
-  .watermark-text {
-    font-family: var(--font-sans);
-    font-size: 12px;
-    fill: currentColor;
-    opacity: 0.3;
+  .text {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    fill: oklch(96% 0.006 75 / 0.3);
     letter-spacing: 0.5px;
-    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 640px) {
     .watermark {
-      bottom: 0.75rem;
-      right: 0.75rem;
-      width: 140px;
-      height: 30px;
+      width: 120px;
+      height: 28px;
+      bottom: var(--space-sm);
+      right: var(--space-sm);
     }
-
-    .watermark-text {
-      font-size: 10px;
-    }
+    .text { font-size: 8px; }
   }
 </style>

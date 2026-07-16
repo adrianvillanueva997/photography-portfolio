@@ -1,178 +1,105 @@
 ---
+/* Hallmark · macrostructure: Photographic · tone: atmospheric · anchor hue: amber (65°) */
+
 import Layout from "../layouts/Layout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import ProfileSection from "../components/ProfileSection.astro";
+import Stats from "../components/Stats.astro";
 import PhotoCard from "../components/PhotoCard.astro";
 import { uniqueIdFromImage, sortPhotosByDate } from "../lib/imageMetadata.ts";
 import yaml from "js-yaml";
 
 interface Photo {
-	id: string;
-	title: string;
-	image: string;
-	thumbnail: string;
-	metadata: {
-		camera: string;
-		lens: string;
-		settings: {
-			iso: number | number[];
-			aperture: string;
-			shutter: string;
-			focalLength: number | string;
-		};
-		location: string;
-		dateTaken: string;
-	};
+  id: string;
+  title: string;
+  image: string;
+  thumbnail: string;
+  metadata: {
+    camera: string;
+    lens: string;
+    settings: { iso: number | number[]; aperture: string; shutter: string; focalLength: number | string; };
+    location: string;
+    dateTaken: string;
+  };
 }
 
 interface Collection {
-	collection: string;
-	description: string;
-	photos: Photo[];
+  collection: string;
+  description: string;
+  photos: Photo[];
 }
 
-// Load all YAML files
-const collectionFiles = import.meta.glob("../data/collections/*.yaml", {
-	query: "?raw",
-	import: "default",
-});
+const collectionFiles = import.meta.glob("../data/collections/*.yaml", { query: "?raw", import: "default" });
 const allPhotos: Photo[] = [];
 
 for (const [_path, getContent] of Object.entries(collectionFiles)) {
-	const content = (await getContent()) as string;
-	const data = yaml.load(content) as Collection;
-	allPhotos.push(...data.photos);
+  const content = (await getContent()) as string;
+  const data = yaml.load(content) as Collection;
+  allPhotos.push(...data.photos);
 }
 
 const sortedPhotos = sortPhotosByDate(allPhotos);
+const collectionCount = Object.keys(collectionFiles).length;
 ---
 
-<Layout title="Adrian Villanueva - Photography Portfolio" description="Tokyo-based photographer showcasing urban landscapes and natural beauty.">
+<Layout title="Adrian Villanueva — Photography Portfolio" description="Tokyo-based photographer. Urban landscapes, natural beauty, and live music.">
   <Header currentPage="home" />
 
-  <main id="main-content" class="main">
+  <main id="main-content">
     <ProfileSection />
 
-    <section class="gallery-section">
-      <div class="gallery-header">
-        <div class="gallery-tag">
-          <span class="tag-line"></span>
-          <span class="tag-text">Selected Works</span>
-        </div>
-        <span class="gallery-count">{sortedPhotos.length} photographs</span>
+    <section class="photo-grid">
+      <div class="grid-header">
+        <span class="grid-count mono">{sortedPhotos.length} photographs across {collectionCount} collections</span>
       </div>
-      <div class="gallery-container">
-        <div class="gallery-grid">
-          {sortedPhotos.map(photo => (
-            <PhotoCard
-              id={uniqueIdFromImage(photo)}
-              title={photo.title}
-              image={photo.image}
-              metadata={photo.metadata}
-            />
-          ))}
-        </div>
+      <div class="grid">
+        {sortedPhotos.map(photo => (
+          <PhotoCard
+            id={uniqueIdFromImage(photo)}
+            title={photo.title}
+            image={photo.image}
+            metadata={photo.metadata}
+          />
+        ))}
       </div>
     </section>
-  </main>
 
-  <Footer />
+    <Footer />
+  </main>
 </Layout>
 
 <style>
-  .main {
-    min-height: calc(100vh - 200px);
+  .photo-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--page-gutter) var(--space-3xl);
   }
 
-  .gallery-section {
-    padding: 0 0 4rem 0;
-  }
-
-  .gallery-header {
-    padding: 0 2rem 2rem;
+  .grid-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--color-border);
+    padding: var(--space-lg) 0;
+    border-bottom: 1px solid var(--color-rule);
+    margin-bottom: var(--space-lg);
   }
 
-  .gallery-tag {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .tag-line {
-    display: block;
-    width: 40px;
-    height: 1px;
-    background: var(--color-primary);
-  }
-
-  .tag-text {
+  .grid-count {
     font-family: var(--font-mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--color-primary);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    letter-spacing: 0.03em;
   }
 
-  .gallery-count {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    color: var(--color-text-secondary);
-    opacity: 0.5;
-  }
+  .mono { font-family: var(--font-mono); }
 
-  .gallery-container {
-    width: 100%;
-    overflow: hidden;
-  }
-
-  .gallery-grid {
+  .grid {
     columns: 4;
-    column-gap: 2rem;
-    padding: 2rem;
-    max-width: 1600px;
-    margin: 0 auto;
+    column-gap: var(--space-lg);
   }
 
-  @media (max-width: 1400px) {
-    .gallery-grid {
-      columns: 3;
-      column-gap: 1.5rem;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    .gallery-grid {
-      columns: 2;
-      column-gap: 1.25rem;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .gallery-grid {
-      columns: 1;
-      padding: 1.5rem 1rem;
-    }
-
-    .gallery-header {
-      padding: 0 0.75rem 1rem;
-    }
-
-    .tag-line {
-      width: 24px;
-    }
-
-    .tag-text {
-      font-size: 0.6rem;
-    }
-
-    .gallery-count {
-      font-size: 0.6rem;
-    }
-  }
+  @media (max-width: 1200px) { .grid { columns: 3; } }
+  @media (max-width: 900px)  { .grid { columns: 2; column-gap: var(--space-md); } }
+  @media (max-width: 600px)  { .grid { columns: 1; } }
 </style>

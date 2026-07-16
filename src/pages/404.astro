@@ -4,204 +4,76 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 ---
 
-<Layout title="404 - Page Not Found" description="The page you're looking for doesn't exist.">
+<Layout title="404 — Page Not Found" description="The page you're looking for doesn't exist.">
   <Header currentPage="home" />
 
-  <main id="main-content" class="main">
-    <section class="error-section">
-      <div class="error-container">
-        <div class="error-content">
-          <h1 class="error-code">404</h1>
-          <h2>Page Not Found</h2>
-          <p>The page you're looking for doesn't exist or has been moved.</p>
-
-          <div class="error-actions">
-            <a href="/" class="btn-primary">Back to Home</a>
-            <a href="/collections" class="btn-secondary">Browse Collections</a>
-          </div>
-
-          <div class="error-suggestions">
-            <p>Or explore:</p>
-            <ul>
-              <li><a href="/stats">Portfolio Statistics</a></li>
-              <li><a href="/about">About & Gear</a></li>
-              <li><a href="https://instagram.com/dude.traveler" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-            </ul>
-          </div>
-        </div>
+  <main id="main-content" class="page">
+    <div class="error">
+      <h1 class="code">404</h1>
+      <p class="msg">That frame didn't develop.</p>
+      <div class="links">
+        <a href="/" class="btn">Back home</a>
+        <a href="/collections" class="btn">Browse collections</a>
       </div>
-    </section>
+    </div>
   </main>
 
   <Footer />
 </Layout>
 
 <style>
-  .main {
+  .page {
     min-height: calc(100vh - 200px);
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: var(--space-2xl) var(--page-gutter);
   }
 
-  .error-section {
-    padding: 4rem 2rem;
+  .error {
     text-align: center;
-    animation: fadeInUp 0.6s ease-out;
-  }
-
-  .error-container {
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  .error-content {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: var(--space-lg);
+    align-items: center;
   }
 
-  .error-code {
-    font-family: var(--font-mono);
-    font-size: 8rem;
-    color: var(--color-primary);
-    margin: 0;
+  .code {
+    font-family: var(--font-display);
+    font-size: clamp(5rem, 15vw, 10rem);
     font-weight: 700;
+    color: var(--color-rule);
     line-height: 1;
-    opacity: 0.6;
+    letter-spacing: -0.04em;
   }
 
-  h2 {
-    color: var(--color-text);
-    font-family: var(--font-serif);
-    font-size: 1.8rem;
-    margin: 1rem 0 0 0;
-    font-weight: 500;
+  .msg {
+    font-size: var(--text-lg);
+    color: var(--color-muted);
   }
 
-  p {
-    color: var(--color-text-secondary);
-    font-size: 1rem;
-    margin: 0;
-    font-weight: 300;
-  }
-
-  .error-actions {
+  .links {
     display: flex;
-    gap: 1rem;
-    justify-content: center;
+    gap: var(--space-sm);
     flex-wrap: wrap;
-    margin: 2rem 0;
+    justify-content: center;
   }
 
-  .btn-primary,
-  .btn-secondary {
+  .btn {
     display: inline-block;
-    padding: 0.65rem 1.5rem;
-    text-decoration: none;
+    padding: 0.5rem 1.25rem;
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    transition: all 0.3s;
-    border: 1px solid var(--color-border);
-  }
-
-  .btn-primary {
-    background: var(--color-primary);
-    color: var(--color-bg);
-    border-color: var(--color-primary);
-  }
-
-  .btn-primary:hover {
-    background: var(--color-primary-dim);
-  }
-
-  .btn-secondary {
-    background: transparent;
-    color: var(--color-text-secondary);
-  }
-
-  .btn-secondary:hover {
-    border-color: var(--color-primary-dim);
-    color: var(--color-text);
-  }
-
-  .error-suggestions {
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--color-border);
-  }
-
-  .error-suggestions p {
-    color: var(--color-text-secondary);
-    margin-bottom: 1rem;
-    font-family: var(--font-serif);
-    font-style: italic;
-  }
-
-  .error-suggestions ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .error-suggestions a {
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    border: 1px solid var(--color-rule);
+    border-radius: 999px;
     text-decoration: none;
-    transition: color 0.3s;
+    transition: all var(--dur-short) var(--ease-out);
   }
 
-  .error-suggestions a:hover {
-    color: var(--color-primary);
-  }
-
-  @media (max-width: 768px) {
-    .error-section {
-      padding: 3rem 1.5rem;
-    }
-
-    .error-code {
-      font-size: 5rem;
-    }
-
-    h2 {
-      font-size: 1.5rem;
-    }
-
-    .error-actions {
-      flex-direction: column;
-    }
-
-    .btn-primary,
-    .btn-secondary {
-      width: 100%;
-      text-align: center;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .error-section {
-      padding: 2rem 1rem;
-    }
-
-    .error-code {
-      font-size: 4rem;
-    }
-
-    .error-content {
-      gap: 1.5rem;
-    }
-
-    .error-suggestions {
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-    }
+  .btn:hover {
+    color: var(--color-ink-2);
+    border-color: var(--color-accent);
+    background: oklch(72% 0.18 65 / 0.06);
   }
 </style>

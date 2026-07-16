@@ -4,328 +4,183 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import yaml from "js-yaml";
 
-const aboutFile = await import("../data/about.yaml?raw", {
-	with: { type: "raw" },
-});
-const aboutData = yaml.load(aboutFile.default) as {
-	title: string;
-	bio: Array<{ section: string; content: string }>;
-	gear: {
-		primary?: Array<{ name: string; spec: string; description: string }>;
-		secondary?: Array<{ name: string; spec: string; description: string }>;
-		lenses?: Array<{ name: string; spec: string }>;
-		backup?: { name: string; spec: string; description: string };
-	};
-	contact: { intro: string; links: Array<{ label: string; url: string }> };
+const aboutGlob = import.meta.glob("../data/about.yaml", { query: "?raw", import: "default" });
+const aboutRaw = await aboutGlob["../data/about.yaml"]() as string;
+const aboutData = yaml.load(aboutRaw) as {
+  title: string;
+  bio: Array<{ section: string; content: string }>;
+  gear: {
+    primary?: Array<{ name: string; spec: string; description: string }>;
+    secondary?: Array<{ name: string; spec: string; description: string }>;
+    lenses?: Array<{ name: string; spec: string }>;
+  };
+  contact: { intro: string; links: Array<{ label: string; url: string }> };
 };
 ---
 
-<Layout title="About - Adrian Villanueva" description="Learn about Adrian Villanueva, a Tokyo-based photographer. Specializing in urban and nature photography.">
+<Layout title="About — Adrian Villanueva" description="Tokyo-based photographer. Bio, gear, and contact.">
   <Header currentPage="about" />
 
-  <main id="main-content" class="main">
-    <section class="about-section">
-      <div class="about-container">
-        <h1>About Me</h1>
+  <main id="main-content" class="page">
+    <article class="about">
+      <h1 class="page-title">About</h1>
 
-        <div class="about-content">
-          <div class="about-text">
-            {aboutData.bio.map((section) => (
-              <>
-                <h2 class="section-title">{section.section}</h2>
-                {section.content.split('\n').map((paragraph) => (
-                  <p>{paragraph.trim()}</p>
-                ))}
-              </>
+      <div class="body">
+        {aboutData.bio.map(section => (
+          <section class="bio-section">
+            <h2 class="section-title">{section.section}</h2>
+            {section.content.split('\n').map(p => p.trim()).filter(Boolean).map(p => (
+              <p>{p}</p>
             ))}
+          </section>
+        ))}
 
-            <div class="ornamental-divider">✦</div>
-
-            <h2 class="section-title">Camera Equipment</h2>
-            <div class="gear-section">
-              {aboutData.gear.primary && aboutData.gear.primary.length > 0 && (
-                <div class="gear-item">
-                  <h3>Primary Camera</h3>
-                  <div class="gear-list">
-                    {aboutData.gear.primary.map((camera) => (
-                      <div class="camera">
-                        <p class="gear-name">{camera.name}</p>
-                        <p class="gear-spec">{camera.spec}</p>
-                        <p class="gear-desc">{camera.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {aboutData.gear.secondary && aboutData.gear.secondary.length > 0 && (
-                <div class="gear-item">
-                  <h3>Secondary Camera</h3>
-                  <div class="gear-list">
-                    {aboutData.gear.secondary.map((camera) => (
-                      <div class="camera">
-                        <p class="gear-name">{camera.name}</p>
-                        <p class="gear-spec">{camera.spec}</p>
-                        <p class="gear-desc">{camera.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {aboutData.gear.lenses && aboutData.gear.lenses.length > 0 && (
-                <div class="gear-item">
-                  <h3>Lenses</h3>
-                  <div class="lens-list">
-                    {aboutData.gear.lenses.map((lens) => (
-                      <div class="lens">
-                        <p class="lens-name">{lens.name}</p>
-                        <p class="lens-spec">{lens.spec}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {aboutData.gear.backup && (
-                <div class="gear-item">
-                  <h3>Backup & Accessories</h3>
-                  <p class="gear-name">{aboutData.gear.backup.name}</p>
-                  <p class="gear-spec">{aboutData.gear.backup.spec}</p>
-                  <p class="gear-desc">{aboutData.gear.backup.description}</p>
-                </div>
-              )}
+        <section class="gear-section">
+          <h2 class="section-title">Camera Equipment</h2>
+          {aboutData.gear.primary?.map(camera => (
+            <div class="gear">
+              <h3 class="gear-name">{camera.name}</h3>
+              <p class="gear-spec mono">{camera.spec}</p>
+              <p class="gear-desc">{camera.description}</p>
             </div>
-
-            <div class="ornamental-divider">✦</div>
-
-            <h2 class="section-title">Get in Touch</h2>
-            <p>{aboutData.contact.intro}</p>
-            <div class="contact-links">
-              {aboutData.contact.links.map((link) => (
-                <a href={link.url} target="_blank" rel="noopener noreferrer">{link.label}</a>
-              ))}
+          ))}
+          {aboutData.gear.secondary?.map(camera => (
+            <div class="gear">
+              <h3 class="gear-name">{camera.name}</h3>
+              <p class="gear-spec mono">{camera.spec}</p>
+              <p class="gear-desc">{camera.description}</p>
             </div>
+          ))}
+          {aboutData.gear.lenses?.map(lens => (
+            <div class="gear">
+              <h4 class="gear-name">{lens.name}</h4>
+              <p class="gear-spec mono">{lens.spec}</p>
+            </div>
+          ))}
+        </section>
+
+        <section class="contact-section">
+          <h2 class="section-title">Get in Touch</h2>
+          <p>{aboutData.contact.intro}</p>
+          <div class="links">
+            {aboutData.contact.links.map(link => (
+              <a href={link.url} class="btn" target="_blank" rel="noopener noreferrer">{link.label}</a>
+            ))}
           </div>
-        </div>
+        </section>
       </div>
-    </section>
+    </article>
   </main>
 
   <Footer />
 </Layout>
 
 <style>
-  .main {
-    min-height: calc(100vh - 200px);
-  }
-
-  .about-section {
-    max-width: 900px;
+  .page {
+    max-width: 720px;
     margin: 0 auto;
-    padding: 4rem 2rem;
-    animation: fadeInUp 0.6s ease-out;
+    padding: var(--space-3xl) var(--page-gutter) 0;
   }
 
-  .about-container h1 {
-    font-family: var(--font-serif);
-    font-size: clamp(2.5rem, 5vw, 3.5rem);
-    color: var(--color-text);
-    margin: 0 0 3rem 0;
+  .page-title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    color: var(--color-ink-2);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--space-xl);
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
     font-weight: 500;
+    color: var(--color-accent-dark);
+    margin-bottom: var(--space-md);
+    letter-spacing: -0.01em;
   }
 
-  .about-content {
-    display: grid;
-    gap: 2rem;
-  }
-
-  .about-text {
-    color: var(--color-text-secondary);
-    line-height: 1.8;
-    font-weight: 300;
-  }
-
-  .about-text h2 {
-    color: var(--color-text);
-    font-family: var(--font-serif);
-    font-size: 1.4rem;
-    margin: 3rem 0 1rem 0;
-    font-weight: 500;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .about-text p {
-    margin: 0 0 1.5rem 0;
-    font-size: 1rem;
-  }
-
-  .gear-list {
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0 2rem 0;
-  }
-
-  .gear-list li {
-    padding: 0.75rem 0;
-    color: var(--color-text-secondary);
-    font-size: 1rem;
-  }
-
-  .gear-list strong {
-    color: var(--color-text);
-    font-weight: 500;
+  .bio-section p {
+    font-size: var(--text-base);
+    line-height: 1.7;
+    color: var(--color-muted);
+    margin-bottom: var(--space-md);
   }
 
   .gear-section {
-    display: grid;
-    gap: 2.5rem;
-    margin: 1.5rem 0 2rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
   }
 
-  .gear-item h3 {
-    color: var(--color-primary);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    margin: 0 0 1rem 0;
-    font-weight: 400;
+  .gear {
+    padding: var(--space-md) 0;
+    border-top: 1px solid var(--color-rule);
   }
 
   .gear-name {
-    color: var(--color-text);
-    font-family: var(--font-serif);
-    font-size: 1.1rem;
-    margin: 0 0 0.25rem 0;
+    font-family: var(--font-display);
+    font-size: var(--text-base);
     font-weight: 500;
+    color: var(--color-ink-2);
+    margin-bottom: var(--space-xs);
   }
 
   .gear-spec {
-    color: var(--color-text-secondary);
-    font-size: 0.8rem;
-    margin: 0 0 0.75rem 0;
     font-family: var(--font-mono);
-    letter-spacing: 0.05em;
-    opacity: 0.7;
+    font-size: var(--text-sm);
+    color: var(--color-neutral);
+    margin-bottom: var(--space-sm);
+    letter-spacing: 0.02em;
   }
+
+  .mono { font-family: var(--font-mono); }
 
   .gear-desc {
-    color: var(--color-text-secondary);
-    font-size: 0.95rem;
-    margin: 0;
+    font-size: var(--text-sm);
     line-height: 1.6;
-    font-weight: 300;
+    color: var(--color-muted);
   }
 
-  .lens-list {
-    display: grid;
-    gap: 1.5rem;
+  .contact-section p {
+    font-size: var(--text-base);
+    line-height: 1.7;
+    color: var(--color-muted);
+    margin-bottom: var(--space-lg);
   }
 
-  .lens {
-    padding: 1rem 1.25rem;
-    background: var(--color-bg-card);
-    border-left: 1px solid var(--color-primary-dim);
-  }
-
-  .lens-name {
-    color: var(--color-text);
-    font-family: var(--font-serif);
-    font-size: 1rem;
-    margin: 0 0 0.25rem 0;
-    font-weight: 500;
-  }
-
-  .lens-spec {
-    color: var(--color-text-secondary);
-    font-size: 0.8rem;
-    margin: 0;
-    font-family: var(--font-mono);
-    letter-spacing: 0.05em;
-    opacity: 0.7;
-  }
-
-  .contact-links {
+  .links {
     display: flex;
-    gap: 1rem;
+    gap: var(--space-sm);
     flex-wrap: wrap;
-    margin-top: 1.5rem;
   }
 
-  .contact-links a {
+  .btn {
     display: inline-block;
-    padding: 0.65rem 1.25rem;
-    background: transparent;
-    border: 1px solid var(--color-border);
-    color: var(--color-text-secondary);
-    text-decoration: none;
-    transition: all 0.3s ease;
+    padding: 0.5rem 1.25rem;
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    border: 1px solid var(--color-rule);
+    border-radius: 999px;
+    text-decoration: none;
+    transition: all var(--dur-short) var(--ease-out);
   }
 
-  .contact-links a:hover {
-    border-color: var(--color-primary-dim);
-    color: var(--color-text);
-    background: rgba(200, 164, 90, 0.05);
+  .btn:hover {
+    color: var(--color-ink-2);
+    border-color: var(--color-accent);
+    background: oklch(72% 0.18 65 / 0.06);
   }
 
-  @media (max-width: 768px) {
-    .about-section {
-      padding: 2rem 1.25rem;
-    }
-
-    .about-container h1 {
-      margin-bottom: 2rem;
-    }
-
-    .about-text h2 {
-      font-size: 1.2rem;
-      margin: 2rem 0 0.75rem 0;
-    }
-
-    .contact-links {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .contact-links a {
-      text-align: center;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .about-section {
-      padding: 1.5rem 1rem;
-    }
-
-    .about-container h1 {
-      margin-bottom: 1.5rem;
-    }
-
-    .about-text p {
-      font-size: 0.9rem;
-      margin-bottom: 1rem;
-    }
-
-    .gear-name {
-      font-size: 1rem;
-    }
-
-    .gear-desc {
-      font-size: 0.85rem;
-    }
-
-    .lens {
-      padding: 0.75rem 1rem;
-    }
-
-    .lens-name {
-      font-size: 0.9rem;
-    }
+  @media (max-width: 640px) {
+    .page { padding: var(--space-2xl) var(--page-gutter) 0; }
+    .page-title { font-size: var(--text-xl); }
   }
 </style>

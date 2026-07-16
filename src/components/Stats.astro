@@ -1,95 +1,73 @@
 ---
 interface Props {
-	photoCount: number;
-	collectionCount: number;
-	camera: string;
+  photoCount: number;
+  collectionCount: number;
 }
 
-const { photoCount, collectionCount, camera } = Astro.props;
+const { photoCount, collectionCount } = Astro.props;
 ---
 
-<section class="stats">
-  <div class="stats-container">
-    <div class="stat-item">
-      <span class="stat-number">{photoCount}</span>
-      <span class="stat-label">Photographs</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-item">
-      <span class="stat-number">{collectionCount}</span>
-      <span class="stat-label">Collections</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-item">
-      <span class="stat-label-alt">{camera}</span>
-    </div>
+<div class="stats">
+  <div class="stat">
+    <span class="num">{photoCount}</span>
+    <span class="label mono">photographs</span>
   </div>
-</section>
+  <span class="sep" aria-hidden="true"></span>
+  <div class="stat">
+    <span class="num">{collectionCount}</span>
+    <span class="label mono">collections</span>
+  </div>
+  <span class="sep" aria-hidden="true"></span>
+  <div class="stat">
+    <span class="num">GR III</span>
+    <span class="label mono">current camera</span>
+  </div>
+</div>
 
 <style>
   .stats {
-    background: var(--color-bg-card);
-    border-top: 1px solid var(--color-border);
-    border-bottom: 1px solid var(--color-border);
-    padding: 2.5rem 0;
-    margin: 3rem 0;
-  }
-
-  .stats-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 2rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 3rem;
-    flex-wrap: wrap;
+    gap: var(--space-xl);
+    padding: var(--space-lg) 0;
+    border-block: 1px solid var(--color-rule);
+    margin: 0;
   }
 
-  .stat-item {
+  .stat {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.25rem;
   }
 
-  .stat-number {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--color-primary);
-    font-family: var(--font-mono);
+  .num {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    color: var(--color-accent);
+    font-variant-numeric: tabular-nums;
   }
 
-  .stat-label {
-    font-size: 0.65rem;
+  .label {
     font-family: var(--font-mono);
-    color: var(--color-text-secondary);
+    font-size: var(--text-micro);
+    color: var(--color-muted);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    letter-spacing: 0.2em;
-    opacity: 0.6;
   }
 
-  .stat-label-alt {
-    font-size: 0.85rem;
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-    letter-spacing: 0.05em;
-  }
+  .mono { font-family: var(--font-mono); }
 
-  .stat-divider {
+  .sep {
     width: 1px;
-    height: 40px;
-    background: var(--color-border);
+    height: 2rem;
+    background: var(--color-rule);
   }
 
-  @media (max-width: 768px) {
-    .stats-container {
-      gap: 2rem;
-      padding: 0 1rem;
-    }
-
-    .stat-number {
-      font-size: 1.75rem;
-    }
+  @media (max-width: 640px) {
+    .stats { gap: var(--space-md); flex-wrap: wrap; }
+    .num { font-size: var(--text-xl); }
   }
 </style>
