@@ -73,10 +73,9 @@ const collectionCount = Object.keys(collectionFiles).length;
   document.addEventListener('click', function(e) {
     var trigger = e.target.closest('[data-lightbox-trigger]');
     if (!trigger) return;
-    e.preventDefault();
     var id = trigger.getAttribute('data-lightbox-trigger');
     var lb = document.getElementById('lightbox-' + id);
-    if (lb && lb.__open) lb.__open();
+    if (lb && lb.__open) { e.preventDefault(); lb.__open(); }
   });
 </script>
 
