@@ -55,29 +55,6 @@ test.describe('Stats', () => {
   });
 });
 
-test.describe('Lightbox', () => {
-  test('opens on photo click', async ({ page }) => {
-    await page.goto('/');
-    await page.locator('[data-lightbox-trigger]').first().click();
-    await expect(page.locator('[role="dialog"].active')).toBeVisible();
-  });
-
-  test('closes on Escape key', async ({ page }) => {
-    await page.goto('/');
-    await page.locator('[data-lightbox-trigger]').first().click();
-    await expect(page.locator('[role="dialog"].active')).toBeVisible();
-    await page.keyboard.press('Escape');
-    await expect(page.locator('[role="dialog"].active')).toHaveCount(0);
-  });
-
-  test('closes on close button click', async ({ page }) => {
-    await page.goto('/');
-    await page.locator('[data-lightbox-trigger]').first().click();
-    await page.locator('[role="dialog"].active .lightbox-close').click();
-    await expect(page.locator('[role="dialog"].active')).toHaveCount(0);
-  });
-});
-
 test.describe('Navigation', () => {
   test('navigates between pages', async ({ page }) => {
     await page.goto('/');

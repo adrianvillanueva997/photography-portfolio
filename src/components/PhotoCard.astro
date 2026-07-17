@@ -27,7 +27,7 @@ const isoValue = Array.isArray(metadata.settings.iso) ? metadata.settings.iso[0]
 ---
 
 <article class="card">
-  <a href={`/photos/${id}`} class="link">
+  <a href={`/photos/${id}`} class="link" data-lightbox-trigger={id}>
     <picture>
       <source srcset={`${displayUrl} 1400w, ${collectionUrl} 700w, ${thumbnailUrl} 350w`} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1400px) 33vw, 25vw" type="image/avif" />
       <source srcset={`${displayWebp} 1400w, ${collWebp} 700w, ${thumbWebp} 350w`} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1400px) 33vw, 25vw" type="image/webp" />
