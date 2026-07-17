@@ -1,18 +1,20 @@
 ---
+/* Hallmark · genre: atmospheric · macrostructure: Photographic · theme: Bloom · enrichment: none · nav: N5 · footer: Ft5 */
+
 import mePhoto from "../assets/me-display.avif";
 
 interface Props {
-	title: string;
-	description?: string;
-	image?: string;
-	url?: string;
+  title: string;
+  description?: string;
+  image?: string;
+  url?: string;
 }
 
 const {
-	title,
-	description = "Spanish Tokyo-based photographer capturing urban landscapes, natural beauty and live music events.",
-	image = mePhoto.src,
-	url = Astro.url.pathname,
+  title,
+  description = "Tokyo-based photographer capturing urban landscapes, natural beauty, and live music.",
+  image = mePhoto.src,
+  url = Astro.url.pathname,
 } = Astro.props;
 const siteUrl = "https://avm.photography";
 const fullUrl = siteUrl + url;
@@ -21,295 +23,165 @@ const fullImage = image.startsWith('http') ? image : siteUrl + image;
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
-		<link rel="apple-touch-icon" href="/favicon.svg" />
-		<link rel="manifest" href="/site.webmanifest" />
-		<meta name="theme-color" content="#0a0a0a" />
-		<meta name="generator" content={Astro.generator} />
-		<!-- Google Fonts: Playfair Display for headers, Inter for body, Space Mono for technical -->
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-		<title>{title}</title>
-		<meta name="description" content={description} />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#f5f2eb" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
 
-		<!-- Open Graph / Facebook -->
-		<meta property="og:type" content="website" />
-		<meta property="og:url" content={fullUrl} />
-		<meta property="og:title" content={title} />
-		<meta property="og:description" content={description} />
-		<meta property="og:image" content={fullImage} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={fullUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={fullImage} />
 
-		<!-- Twitter -->
-		<meta property="twitter:card" content="summary_large_image" />
-		<meta property="twitter:url" content={fullUrl} />
-		<meta property="twitter:title" content={title} />
-		<meta property="twitter:description" content={description} />
-		<meta property="twitter:image" content={fullImage} />
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={fullUrl} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={fullImage} />
 
-		<!-- Canonical URL -->
-		<link rel="canonical" href={fullUrl} />
+    <link rel="canonical" href={fullUrl} />
 
-		<!-- Performance: Preload hero image for LCP optimization -->
-		<link rel="preload" as="image" href={mePhoto.src} type="image/avif" />
-
-		<!-- Analytics -->
-		<script
-			src="https://analytics.thexiao77.com/api/script.js"
-			data-site-id="5da891fb4a94"
-			defer
-		></script>
-	</head>
-	<body>
-		<a href="#main-content" class="skip-link">Skip to content</a>
-		<div class="grain-overlay" aria-hidden="true"></div>
-		<slot />
-	</body>
+    <script
+      src="https://analytics.thexiao77.com/api/script.js"
+      data-site-id="5da891fb4a94"
+      defer
+    ></script>
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <slot />
+  </body>
 </html>
 
 <style is:global>
-	:root {
-		--color-primary: #c8a45a;
-		--color-primary-dim: #a0833e;
-		--color-secondary: #6b7f80;
-		--color-accent-light: #d4cfc4;
-		--color-bg: #0c0b09;
-		--color-bg-alt: #16140f;
-		--color-bg-card: #12110d;
-		--color-text: #ede8df;
-		--color-text-secondary: #8a847a;
-		--color-border: #2a2620;
-		--color-border-light: #3a352c;
-		--font-serif: 'Playfair Display', serif;
-		--font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-		--font-mono: 'Space Mono', 'JetBrains Mono', 'Courier New', monospace;
-	}
+  :root {
+    --color-paper:    oklch(96%  0.012 75);
+    --color-paper-2:  oklch(93%  0.014 75);
+    --color-paper-3:  oklch(88%  0.016 75);
+    --color-rule:     oklch(82%  0.008 75);
+    --color-neutral:  oklch(60%  0.008 65);
+    --color-muted:    oklch(42%  0.008 60);
+    --color-ink:      oklch(18%  0.008 55);
+    --color-ink-2:    oklch(26%  0.010 55);
+    --color-accent:   oklch(72%  0.18  65);
+    --color-accent-2: oklch(60%  0.20  58);
+    --color-accent-dark: oklch(35%  0.08  30);
+    --color-focus:    oklch(65%  0.18  70);
+    --color-glow:     oklch(80%  0.08  75 / 0.12);
 
-	* {
-		margin: 0;
-		padding: 0;
-		box-sizing: border-box;
-	}
+    --font-display: 'Sora', system-ui, sans-serif;
+    --font-body:    'Sora', system-ui, sans-serif;
+    --font-mono:    'JetBrains Mono', ui-monospace, monospace;
 
-	html {
-		font-family: var(--font-sans);
-		font-weight: 300;
-		color: var(--color-text);
-		background: var(--color-bg);
-		scroll-behavior: smooth;
-	}
+    --text-micro:  0.625rem;
+    --text-sm:     0.75rem;
+    --text-base:   0.9375rem;
+    --text-lg:     1.125rem;
+    --text-xl:     1.5rem;
+    --text-2xl:    2rem;
+    --text-3xl:    3rem;
+    --text-display: clamp(2.5rem, 6vw + 1rem, 5rem);
 
-	body {
-		margin: 0;
-		width: 100%;
-		min-height: 100vh;
-		position: relative;
-		overflow-x: hidden;
-	}
+    --space-xs:  0.25rem;
+    --space-sm:  0.5rem;
+    --space-md:  1rem;
+    --space-lg:  2rem;
+    --space-xl:  3rem;
+    --space-2xl: 4rem;
+    --space-3xl: 6rem;
 
-	/* Film grain overlay - extracted to external SVG for caching */
-	.grain-overlay {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		pointer-events: none;
-		z-index: 9999;
-		opacity: 0.035;
-		background-image: url('/grain.svg');
-		background-repeat: repeat;
-		background-size: 256px 256px;
-	}
+    --page-gutter: clamp(1rem, 4vw, 2.5rem);
 
-	h1, h2, h3, h4, h5, h6 {
-		font-family: var(--font-serif);
-		font-weight: 500;
-		letter-spacing: -0.01em;
-	}
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in:  cubic-bezier(0.7,  0, 0.84, 0);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 
-	a {
-		color: inherit;
-		text-decoration: none;
-	}
+    --dur-micro: 120ms;
+    --dur-short: 220ms;
+    --dur-long:  420ms;
+  }
 
-	::selection {
-		background: var(--color-primary);
-		color: var(--color-bg);
-	}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-	::-webkit-scrollbar {
-		width: 6px;
-	}
+  html {
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 16px;
+    color: var(--color-ink);
+    background: var(--color-paper);
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-	::-webkit-scrollbar-track {
-		background: var(--color-bg);
-	}
+  body {
+    margin: 0;
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: clip;
+  }
 
-	::-webkit-scrollbar-thumb {
-		background: var(--color-border-light);
-		border-radius: 3px;
-	}
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-paper);
+  }
 
-	::-webkit-scrollbar-thumb:hover {
-		background: var(--color-text-secondary);
-	}
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--color-paper); }
+  ::-webkit-scrollbar-thumb { background: var(--color-rule); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-neutral); }
 
-	.skip-link {
-		position: absolute;
-		top: -100%;
-		left: 1rem;
-		padding: 0.75rem 1.5rem;
-		background: var(--color-primary);
-		color: var(--color-bg);
-		font-family: var(--font-mono);
-		font-size: 0.8rem;
-		z-index: 10000;
-		transition: top 0.2s;
-	}
+  a { color: inherit; text-decoration: none; }
 
-	.skip-link:focus {
-		top: 1rem;
-	}
+  img { display: block; width: 100%; height: auto; }
 
-	picture {
-		display: block;
-	}
+  picture { display: block; }
 
-	img {
-		width: 100%;
-		height: auto;
-		object-fit: cover;
-	}
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: var(--page-gutter);
+    padding: 0.75rem 1.5rem;
+    background: var(--color-accent);
+    color: var(--color-paper);
+    font-size: var(--text-sm);
+    z-index: 10000;
+    transition: top 0.2s;
+  }
+  .skip-link:focus { top: 1rem; }
 
-	.photo-card,
-	.photo-grid-item,
-	.collection-preview {
-		contain: layout style;
-	}
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 
-	a:focus-visible,
-	button:focus-visible {
-		outline: none;
-		box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-primary), 0 0 14px var(--color-primary);
-		border-radius: 2px;
-	}
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 
-	.section-title {
-		position: relative;
-		font-family: var(--font-serif);
-		font-weight: 500;
-		margin-bottom: 2rem;
-	}
-
-	.section-title::after {
-		content: '';
-		position: absolute;
-		bottom: -6px;
-		left: 0;
-		width: 60px;
-		height: 2px;
-		background: linear-gradient(90deg, var(--color-primary), transparent);
-	}
-
-	.ornamental-divider {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 1rem;
-		color: var(--color-primary-dim);
-		font-size: 0.8rem;
-		opacity: 0.4;
-		margin: 3rem 0;
-	}
-
-	.ornamental-divider::before,
-	.ornamental-divider::after {
-		content: '';
-		flex: 1;
-		height: 1px;
-		background: linear-gradient(90deg, transparent, var(--color-primary-dim), transparent);
-	}
-
-	@keyframes fadeInUp {
-		from {
-			opacity: 0;
-			transform: translateY(12px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-
-	@keyframes fadeIn {
-		from { opacity: 0; }
-		to { opacity: 1; }
-	}
-
-	@media (hover: none) {
-		.photo-card .overlay {
-			opacity: 1;
-			background: linear-gradient(
-				to bottom,
-				transparent 0%,
-				transparent 40%,
-				rgba(12, 11, 9, 0.75) 100%
-			);
-		}
-
-		.photo-card .overlay-top {
-			display: none;
-		}
-
-		.photo-card .film-edge {
-			display: none;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		* {
-			animation-duration: 0.01ms !important;
-			transition-duration: 0.01ms !important;
-		}
-	}
-
-	@media print {
-		body {
-			background: white;
-			color: black;
-		}
-
-		.grain-overlay {
-			display: none;
-		}
-
-		a {
-			color: #0066cc;
-			text-decoration: underline;
-		}
-
-		header,
-		footer {
-			display: none;
-		}
-
-		img {
-			max-width: 100%;
-			break-inside: avoid;
-		}
-
-		h1, h2, h3 {
-			break-after: avoid;
-		}
-
-		p {
-			orphans: 3;
-			widows: 3;
-		}
-	}
+  @media print {
+    body { background: white; color: black; }
+    a { color: #0066cc; text-decoration: underline; }
+    header, footer { display: none; }
+    img { max-width: 100%; break-inside: avoid; }
+    h1, h2, h3 { break-after: avoid; }
+    p { orphans: 3; widows: 3; }
+  }
 </style>

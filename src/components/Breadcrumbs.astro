@@ -1,16 +1,14 @@
 ---
 interface Props {
-	collection: string;
+  collection: string;
 }
 
 const { collection } = Astro.props;
 ---
 
 <nav class="breadcrumbs" aria-label="Breadcrumbs">
-  <a href="/">Home</a>
-  <span class="divider">/</span>
   <a href="/collections">Collections</a>
-  <span class="divider">/</span>
+  <span class="arrow" aria-hidden="true">&rarr;</span>
   <span class="current">{collection}</span>
 </nav>
 
@@ -20,29 +18,28 @@ const { collection } = Astro.props;
     align-items: center;
     gap: 0.5rem;
     font-family: var(--font-mono);
-    font-size: 0.7rem;
-    color: var(--color-text-secondary);
-    padding: 1rem 0;
-    letter-spacing: 0.05em;
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    letter-spacing: 0.03em;
+    padding: var(--space-md) 0;
   }
 
   .breadcrumbs a {
-    color: var(--color-text-secondary);
+    color: var(--color-neutral);
     text-decoration: none;
-    transition: color 0.3s;
+    transition: color var(--dur-short) var(--ease-out);
   }
 
   .breadcrumbs a:hover {
-    color: var(--color-primary);
+    color: var(--color-accent);
   }
 
-  .divider {
-    color: var(--color-border-light);
-    opacity: 0.5;
+  .arrow {
+    color: var(--color-rule);
+    font-size: var(--text-sm);
   }
 
   .current {
-    color: var(--color-text);
-    font-weight: 400;
+    color: var(--color-ink-2);
   }
 </style>

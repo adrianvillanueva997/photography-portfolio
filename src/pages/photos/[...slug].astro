@@ -7,144 +7,124 @@ import { generateImageSchema, generatePersonSchema } from "../../lib/imageMetada
 import yaml from "js-yaml";
 
 interface Photo {
-	id: string;
-	title: string;
-	image: string;
-	thumbnail: string;
-	metadata: {
-		camera: string;
-		lens: string;
-		settings: {
-			iso: number | number[];
-			aperture: string;
-			shutter: string;
-			focalLength: number | string;
-		};
-		location: string;
-		dateTaken: string;
-	};
+  id: string; title: string; image: string; thumbnail: string;
+  metadata: { camera: string; lens: string; settings: { iso: number | number[]; aperture: string; shutter: string; focalLength: number | string; }; location: string; dateTaken: string; };
 }
 
-interface Collection {
-	collection: string;
-	description: string;
-	photos: Photo[];
-}
+interface Collection { collection: string; description: string; photos: Photo[]; }
 
 export async function getStaticPaths() {
-	const collectionFiles = import.meta.glob("../../data/collections/*.yaml", {
-		query: "?raw",
-		import: "default",
-	});
-	const paths: Array<{ params: { slug: string }; props: { photo: Photo; collection: string } }> = [];
+  const collectionFiles = import.meta.glob("../../data/collections/*.yaml", { query: "?raw", import: "default" });
+  const paths: Array<{ params: { slug: string }; props: { photo: Photo; collection: string; prevSlug: string | null; nextSlug: string | null } }> = [];
 
-	for (const [path, getContent] of Object.entries(collectionFiles)) {
-		const content = (await getContent()) as string;
-		const data = yaml.load(content) as Collection;
-		const collectionSlug = path.split("/").pop()?.replace(".yaml", "") || "";
+  for (const [path, getContent] of Object.entries(collectionFiles)) {
+    const content = (await getContent()) as string;
+    const data = yaml.load(content) as Collection;
+    const collectionSlug = path.split("/").pop()?.replace(".yaml", "") || "";
+    const photos = data.photos;
 
-		for (const photo of data.photos) {
-			const filename = photo.image.split('/').pop()?.replace(/\.[^.]+$/, '') || photo.id;
-			paths.push({
-				params: { slug: filename },
-				props: { photo, collection: collectionSlug },
-			});
-		}
-	}
-
-	return paths;
+    for (let i = 0; i < photos.length; i++) {
+      const photo = photos[i];
+      const slug = photo.image.split('/').pop()?.replace(/\.[^.]+$/, '') || photo.id;
+      const prevSlug = i > 0 ? photos[i - 1].image.split('/').pop()?.replace(/\.[^.]+$/, '') || photos[i - 1].id : null;
+      const nextSlug = i < photos.length - 1 ? photos[i + 1].image.split('/').pop()?.replace(/\.[^.]+$/, '') || photos[i + 1].id : null;
+      paths.push({ params: { slug }, props: { photo, collection: collectionSlug, prevSlug, nextSlug } });
+    }
+  }
+  return paths;
 }
 
-const { photo, collection } = Astro.props;
+const { photo, collection, prevSlug, nextSlug } = Astro.props;
 
 const isoValue = Array.isArray(photo.metadata.settings.iso) ? photo.metadata.settings.iso[0] : photo.metadata.settings.iso;
-const imageSchema = generateImageSchema(photo.image, `${photo.title} - Adrian Villanueva`, {
-	camera_make: photo.metadata.camera.split(' ')[0],
-	camera_model: photo.metadata.camera,
-	lens: photo.metadata.lens,
-	iso: isoValue,
-	aperture: photo.metadata.settings.aperture,
-	shutter_speed: photo.metadata.settings.shutter,
-	focal_length_35mm: String(photo.metadata.settings.focalLength),
-	date_taken: photo.metadata.dateTaken,
+const imageSchema = generateImageSchema(photo.image, `${photo.title} — Adrian Villanueva`, {
+  camera_make: photo.metadata.camera.split(' ')[0],
+  camera_model: photo.metadata.camera,
+  lens: photo.metadata.lens,
+  iso: isoValue,
+  aperture: photo.metadata.settings.aperture,
+  shutter_speed: photo.metadata.settings.shutter,
+  focal_length_35mm: String(photo.metadata.settings.focalLength),
+  date_taken: photo.metadata.dateTaken,
 });
 const personSchema = generatePersonSchema();
-const pageTitle = `${photo.title} - Photography by Adrian Villanueva`;
-const pageUrl = `https://avm.photography/photos/${photo.image.split('/').pop()?.replace(/\.[^.]+$/, '') || photo.id}`;
+const pageTitle = `${photo.title} — Photography by Adrian Villanueva`;
 const baseUrl = photo.image.replace(/-display\.\w+$/, '');
 const ext = photo.image.match(/\.(\w+)$/)?.[1] || 'avif';
-const thumbnailUrl = `${baseUrl}-thumbnail.${ext}`;
 const displayWebp = `${baseUrl}-display.webp`;
+const thumbnailUrl = `${baseUrl}-thumbnail.${ext}`;
+const displayUrl = `${baseUrl}-display.${ext}`;
 ---
 
-<Layout title={pageTitle} description={`${photo.title} — captured in ${photo.metadata.location} with ${photo.metadata.camera}.`} image={photo.image} url={`/photos/${photo.image.split('/').pop()?.replace(/\.[^.]+$/, '') || photo.id}`}>
+<Layout title={pageTitle} description={`${photo.title} — captured in ${photo.metadata.location} with ${photo.metadata.camera}.`} image={photo.image}>
   <script type="application/ld+json" set:html={JSON.stringify(imageSchema)} />
   <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
 
   <Header />
 
-  <main id="main-content" class="main">
+  <main id="main-content" class="page">
     <article class="photo-page">
-      <div class="photo-container">
-        <div class="image-section">
-          <picture>
-            <source srcset={photo.image} type="image/avif" />
-            <source srcset={displayWebp} type="image/webp" />
-            <img src={photo.image} alt={photo.title} width="1400" height="auto" />
-          </picture>
-          <Watermark photographer="© Adrian Villanueva" />
-        </div>
+      <div class="image-area">
+        <picture>
+          <source srcset={displayUrl} type="image/avif" />
+          <source srcset={displayWebp} type="image/webp" />
+          <img src={displayUrl} alt={photo.title} />
+        </picture>
+        <Watermark />
+      </div>
 
-        <div class="info-section">
-          <nav class="breadcrumb">
-            <a href="/collections">Collections</a>
-            <span class="sep">/</span>
-            <a href={`/collections/${collection}`}>{collection}</a>
-            <span class="sep">/</span>
-            <span>{photo.title}</span>
-          </nav>
+      <div class="sidebar">
+        <nav class="breadcrumbs">
+          <a href="/collections">Collections</a>
+          <span class="sep" aria-hidden="true">/</span>
+          <a href={`/collections/${collection}`}>{collection}</a>
+          <span class="sep" aria-hidden="true">/</span>
+          <span class="current">{photo.title}</span>
+        </nav>
 
-          <h1 class="photo-title">{photo.title}</h1>
+        <h1 class="title">{photo.title}</h1>
 
-          <div class="metadata-grid">
-            <div class="meta-item">
-              <span class="meta-label">Camera</span>
-              <span class="meta-value">{photo.metadata.camera}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Lens</span>
-              <span class="meta-value">{photo.metadata.lens}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Aperture</span>
-              <span class="meta-value">{photo.metadata.settings.aperture}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Shutter</span>
-              <span class="meta-value">{photo.metadata.settings.shutter}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">ISO</span>
-              <span class="meta-value">{isoValue}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Focal Length</span>
-              <span class="meta-value">{photo.metadata.settings.focalLength}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Location</span>
-              <span class="meta-value">{photo.metadata.location}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Date</span>
-              <span class="meta-value">{photo.metadata.dateTaken.replace(/:/g, '.')}</span>
-            </div>
+        <dl class="meta">
+          <div class="row">
+            <dt>Camera</dt>
+            <dd class="mono">{photo.metadata.camera.replace('RICOH IMAGING COMPANY, LTD. ', '')}</dd>
           </div>
-
-          <div class="back-link">
-            <a href={`/collections/${collection}`}>&larr; Back to {collection}</a>
+          <div class="row">
+            <dt>Lens</dt>
+            <dd class="mono">{photo.metadata.lens}</dd>
           </div>
-        </div>
+          <div class="row">
+            <dt>Aperture</dt>
+            <dd class="mono">{photo.metadata.settings.aperture}</dd>
+          </div>
+          <div class="row">
+            <dt>Shutter</dt>
+            <dd class="mono">{photo.metadata.settings.shutter}</dd>
+          </div>
+          <div class="row">
+            <dt>ISO</dt>
+            <dd class="mono">{isoValue}</dd>
+          </div>
+          <div class="row">
+            <dt>Focal Length</dt>
+            <dd class="mono">{photo.metadata.settings.focalLength}</dd>
+          </div>
+          <div class="row">
+            <dt>Location</dt>
+            <dd class="mono">{photo.metadata.location}</dd>
+          </div>
+          <div class="row">
+            <dt>Date</dt>
+            <dd class="mono">{photo.metadata.dateTaken.replace(/:/g, '.')}</dd>
+          </div>
+        </dl>
+
+        <a href={`/collections/${collection}`} class="back mono">&larr; Back to {collection}</a>
+
+        <nav class="nav-photos">
+          {prevSlug && <a href={`/photos/${prevSlug}`} class="nav-link mono">Previous</a>}
+          {nextSlug && <a href={`/photos/${nextSlug}`} class="nav-link mono">Next</a>}
+        </nav>
       </div>
     </article>
   </main>
@@ -152,33 +132,35 @@ const displayWebp = `${baseUrl}-display.webp`;
   <Footer />
 </Layout>
 
+<script define:vars={{ prevSlug, nextSlug }}>
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowLeft' && prevSlug) { window.location.href = '/photos/' + prevSlug; }
+    if (e.key === 'ArrowRight' && nextSlug) { window.location.href = '/photos/' + nextSlug; }
+  });
+</script>
+
 <style>
-  .main {
-    min-height: calc(100vh - 200px);
+  .page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-3xl) var(--page-gutter) 0;
   }
 
   .photo-page {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 4rem 2rem;
-    animation: fadeInUp 0.6s ease-out;
-  }
-
-  .photo-container {
     display: grid;
-    grid-template-columns: 1fr 360px;
-    gap: 3rem;
+    grid-template-columns: 1fr 320px;
+    gap: var(--space-xl);
     align-items: start;
   }
 
-  .image-section {
+  .image-area {
     position: relative;
-    background: #000;
-    border: 1px solid rgba(255,255,255,0.08);
+    background: oklch(12% 0.008 55);
     overflow: hidden;
   }
 
-  .image-section img {
+  .image-area img {
     display: block;
     width: 100%;
     height: auto;
@@ -186,122 +168,115 @@ const displayWebp = `${baseUrl}-display.webp`;
     object-fit: contain;
   }
 
-  .info-section {
+  .sidebar {
     position: sticky;
-    top: 6rem;
-  }
-
-  .breadcrumb {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 1.5rem;
+    top: 5rem;
     display: flex;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
     flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
   }
 
-  .breadcrumb a {
-    color: var(--color-text-secondary);
+  .breadcrumbs a {
+    color: var(--color-neutral);
     text-decoration: none;
-    transition: color 0.3s;
+    transition: color var(--dur-short) var(--ease-out);
   }
+  .breadcrumbs a:hover { color: var(--color-accent); }
 
-  .breadcrumb a:hover {
-    color: var(--color-primary);
-  }
+  .sep { color: var(--color-rule); }
+  .current { color: var(--color-ink-2); }
 
-  .sep {
-    color: var(--color-border-light);
-    opacity: 0.4;
-  }
-
-  .breadcrumb span:last-child {
-    color: var(--color-text-secondary);
-    opacity: 0.5;
-  }
-
-  .photo-title {
-    font-family: var(--font-serif);
-    font-size: 2rem;
+  .title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
     font-weight: 500;
-    color: var(--color-text);
-    margin-bottom: 2rem;
+    color: var(--color-ink-2);
+    letter-spacing: -0.01em;
     line-height: 1.2;
   }
 
-  .metadata-grid {
+  .meta {
     display: grid;
-    gap: 1.25rem;
-    margin-bottom: 2rem;
+    gap: var(--space-sm);
   }
 
-  .meta-item {
+  .row {
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    gap: 0.1rem;
   }
 
-  .meta-label {
+  .row dt {
     font-family: var(--font-mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.2em;
+    font-size: var(--text-micro);
+    color: var(--color-neutral);
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-text-secondary);
-    opacity: 0.5;
   }
 
-  .meta-value {
+  .row dd {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--color-text);
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
   }
 
-  .back-link {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--color-border);
-  }
+  .mono { font-family: var(--font-mono); }
 
-  .back-link a {
+  .back {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--color-text-secondary);
+    font-size: var(--text-sm);
+    color: var(--color-neutral);
     text-decoration: none;
-    transition: color 0.3s;
+    transition: color var(--dur-short) var(--ease-out);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-rule);
+  }
+  .back:hover { color: var(--color-accent); }
+
+  .nav-photos {
+    display: flex;
+    gap: var(--space-sm);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-rule);
   }
 
-  .back-link a:hover {
-    color: var(--color-primary);
+  .nav-link {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+    text-decoration: none;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--color-rule);
+    border-radius: 6px;
+    text-align: center;
+    background: oklch(96% 0.003 75 / 0.4);
+  }
+  .nav-link:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background: oklch(72% 0.18 65 / 0.08);
   }
 
-  @media (max-width: 968px) {
-    .photo-container {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-    }
-
-    .photo-page {
-      padding: 2rem 1.25rem;
-    }
-
-    .info-section {
-      position: static;
-    }
-
-    .photo-title {
-      font-size: 1.5rem;
-    }
+  @media (max-width: 900px) {
+    .photo-page { grid-template-columns: 1fr; gap: var(--space-lg); }
+    .sidebar { position: static; }
+    .page { padding: var(--space-2xl) var(--page-gutter) 0; }
+    .title { font-size: var(--text-lg); }
   }
 
   @media (max-width: 480px) {
-    .photo-page {
-      padding: 1.5rem 1rem;
-    }
-
-    .photo-title {
-      font-size: 1.25rem;
-    }
+    .breadcrumbs { font-size: var(--text-sm); }
+    .meta { gap: var(--space-sm); }
   }
 </style>

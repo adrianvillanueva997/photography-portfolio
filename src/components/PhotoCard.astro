@@ -1,30 +1,19 @@
 ---
-import Lightbox from "./Lightbox.astro";
-
-interface Settings {
-	iso: number | number[];
-	aperture: string;
-	shutter: string;
-	focalLength: number | string;
-}
-
 interface Props {
-	id: string;
-	title: string;
-	image: string;
-	metadata: {
-		camera: string;
-		lens: string;
-		settings: Settings;
-		location: string;
-		dateTaken: string;
-	};
+  id: string;
+  title: string;
+  image: string;
+  metadata: {
+    camera: string;
+    lens: string;
+    settings: { iso: number | number[]; aperture: string; shutter: string; focalLength: number | string; };
+    location: string;
+    dateTaken: string;
+  };
 }
 
 const { id, title, image, metadata } = Astro.props;
 
-// Derive alternate size URLs from the display image URL
-// image = ".../R0012164-display.avif" → thumbnail: ".../R0012164-thumbnail.avif", etc.
 const baseUrl = image.replace(/-display\.\w+$/, '');
 const ext = image.match(/\.(\w+)$/)?.[1] || 'avif';
 const thumbnailUrl = `${baseUrl}-thumbnail.${ext}`;
@@ -37,198 +26,71 @@ const displayWebp = `${baseUrl}-display.webp`;
 const isoValue = Array.isArray(metadata.settings.iso) ? metadata.settings.iso[0] : metadata.settings.iso;
 ---
 
-<div class="photo-card">
-  <button class="photo-wrapper" data-lightbox-trigger={id} type="button" aria-label={`View ${title} in fullscreen`}>
-    <div class="photo-inner">
-      <picture>
-        <source srcset={`${displayUrl} 1400w, ${collectionUrl} 700w, ${thumbnailUrl} 350w`} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1400px) 33vw, 25vw" type="image/avif" />
-        <source srcset={`${displayWebp} 1400w, ${collWebp} 700w, ${thumbWebp} 350w`} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1400px) 33vw, 25vw" type="image/webp" />
-        <img src={thumbnailUrl} alt={title} loading="lazy" decoding="async" width="350" height="auto" />
-      </picture>
-      <div class="overlay">
-        <div class="overlay-top">
-          <span class="film-code">{metadata.settings.aperture}</span>
-          <span class="film-code">ISO {isoValue}</span>
-        </div>
-        <div class="overlay-bottom">
-          <h3>{title}</h3>
-          <span class="film-location">{metadata.location}</span>
-        </div>
-      </div>
+<article class="card">
+  <a href={`/photos/${id}`} class="link" data-lightbox-trigger={id}>
+    <picture>
+      <source srcset={`${displayUrl} 1400w, ${collectionUrl} 700w, ${thumbnailUrl} 350w`} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1400px) 33vw, 25vw" type="image/avif" />
+      <source srcset={`${displayWebp} 1400w, ${collWebp} 700w, ${thumbWebp} 350w`} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1400px) 33vw, 25vw" type="image/webp" />
+      <img src={thumbnailUrl} alt={title} loading="lazy" decoding="async" width="350" height="auto" />
+    </picture>
+    <div class="caption">
+      <span class="title">{title}</span>
+      <span class="meta mono">{metadata.location} &middot; {metadata.settings.aperture}</span>
     </div>
-    <div class="film-edge" aria-hidden="true">
-      <span class="film-edge-text">{metadata.camera}</span>
-      <span class="film-edge-dot"></span>
-      <span class="film-edge-text">{metadata.settings.shutter}</span>
-    </div>
-  </button>
-</div>
-
-<Lightbox id={id} image={displayUrl} thumbnail={thumbnailUrl} title={title} metadata={metadata} />
-
-<script>
-  if (!window.__photoCardsInitialized) {
-    window.__photoCardsInitialized = true;
-
-    document.addEventListener('click', function(e) {
-      var photoWrapper = e.target.closest('[data-lightbox-trigger]');
-      if (!photoWrapper) return;
-
-      var photoId = photoWrapper.getAttribute('data-lightbox-trigger');
-      if (!photoId) return;
-
-      var lightbox = document.getElementById('lightbox-' + photoId);
-      if (lightbox) {
-        if (lightbox.__open) {
-          lightbox.__open();
-        } else {
-          lightbox.classList.add('active');
-        }
-      }
-    });
-  }
-</script>
+  </a>
+</article>
 
 <style>
-  .photo-card {
+  .card {
     break-inside: avoid;
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-lg);
     width: 100%;
   }
 
-  .photo-wrapper {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-    cursor: pointer;
-    background: #000;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  .link {
     display: block;
-    text-align: left;
-    font: inherit;
+    text-decoration: none;
     color: inherit;
-    padding: 0;
-    appearance: none;
-    -webkit-appearance: none;
-    background: none;
   }
 
-  .photo-wrapper:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-primary), 0 0 14px var(--color-primary);
+  .link:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
   }
 
-  .photo-wrapper:hover {
-    border-color: var(--color-primary);
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  .link:hover .title {
+    color: var(--color-accent);
   }
 
-  .photo-inner {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-  }
-
+  picture,
   img {
+    display: block;
     width: 100%;
     height: auto;
-    display: block;
-    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .photo-wrapper:hover img {
-    transform: scale(1.05);
-  }
-
-  .overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to bottom,
-      transparent 60%,
-      rgba(0, 0, 0, 0.8) 100%
-    );
+  .caption {
+    padding: var(--space-sm) 0;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    padding: 1.5rem;
-    opacity: 0;
-    transition: opacity 0.4s ease;
+    gap: 0.15rem;
   }
 
-  .photo-wrapper:hover .overlay {
-    opacity: 1;
-  }
-
-  .overlay-top {
-    display: none;
-  }
-
-  .overlay-bottom {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .overlay h3 {
-    margin: 0;
-    font-family: var(--font-serif);
-    font-size: 1.25rem;
+  .title {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
     font-weight: 500;
-    color: #fff;
-    letter-spacing: 0.01em;
+    color: var(--color-ink-2);
+    line-height: 1.3;
+    transition: color var(--dur-short) var(--ease-out);
   }
 
-  .film-location {
+  .meta {
     font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--color-primary);
-    margin-top: 0.25rem;
+    font-size: var(--text-micro);
+    color: var(--color-muted);
+    letter-spacing: 0.03em;
   }
 
-  .film-code {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    color: var(--color-text-secondary);
-    letter-spacing: 0.08em;
-  }
-
-  .film-edge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    padding: 0.75rem 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.03);
-    opacity: 0.4;
-  }
-
-  .film-edge-text {
-    font-family: var(--font-mono);
-    font-size: 0.5rem;
-    color: var(--color-text-secondary);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-  }
-
-  .film-edge-dot {
-    width: 2px;
-    height: 2px;
-    border-radius: 50%;
-    background: var(--color-primary);
-  }
-
-  @media (max-width: 768px) {
-    .overlay {
-      padding: 1rem;
-    }
-
-    .overlay h3 {
-      font-size: 1rem;
-    }
-  }
+  .mono { font-family: var(--font-mono); }
 </style>

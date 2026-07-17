@@ -30,8 +30,8 @@ export default defineConfig({
           name: 'Adrian Villanueva - Photography Portfolio',
           short_name: 'AVM Photography',
           description: 'Tokyo-based photographer capturing urban landscapes and natural beauty.',
-          theme_color: '#0a0a0a',
-          background_color: '#0c0b09',
+          theme_color: '#f5f2eb',
+          background_color: '#f5f2eb',
           display: 'standalone',
           start_url: '/',
           icons: [

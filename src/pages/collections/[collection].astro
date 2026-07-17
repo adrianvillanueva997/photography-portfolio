@@ -8,113 +8,68 @@ import { generateCollectionSchema, uniqueIdFromImage, sortPhotosByDate } from ".
 import yaml from "js-yaml";
 
 interface Photo {
-	id: string;
-	title: string;
-	image: string;
-	thumbnail: string;
-	metadata: {
-		camera: string;
-		lens: string;
-		settings: {
-			iso: number | number[];
-			aperture: string;
-			shutter: string;
-			focalLength: number | string;
-		};
-		location: string;
-		dateTaken: string;
-	};
+  id: string; title: string; image: string; thumbnail: string;
+  metadata: { camera: string; lens: string; settings: { iso: number | number[]; aperture: string; shutter: string; focalLength: number | string; }; location: string; dateTaken: string; };
 }
 
-interface Collection {
-	collection: string;
-	description: string;
-	photos: Photo[];
-}
+interface Collection { collection: string; description: string; photos: Photo[]; }
 
 export async function getStaticPaths() {
-	const collectionFiles = import.meta.glob("../../data/collections/*.yaml", {
-		query: "?raw",
-		import: "default",
-	});
-	const paths = [];
-
-	for (const [path] of Object.entries(collectionFiles)) {
-		const slug = path.split("/").pop()?.replace(".yaml", "") || "";
-		paths.push({ params: { collection: slug } });
-	}
-
-	return paths;
+  const collectionFiles = import.meta.glob("../../data/collections/*.yaml", { query: "?raw", import: "default" });
+  const paths = [];
+  for (const [path] of Object.entries(collectionFiles)) {
+    const slug = path.split("/").pop()?.replace(".yaml", "") || "";
+    paths.push({ params: { collection: slug } });
+  }
+  return paths;
 }
 
 const { collection } = Astro.params;
-const collectionFiles = import.meta.glob("../../data/collections/*.yaml", {
-	query: "?raw",
-	import: "default",
-});
+const collectionFiles = import.meta.glob("../../data/collections/*.yaml", { query: "?raw", import: "default" });
 
 let data: Collection | null = null;
 for (const [path, getContent] of Object.entries(collectionFiles)) {
-	const slug = path.split("/").pop()?.replace(".yaml", "") || "";
-	if (slug === collection) {
-		const content = (await getContent()) as string;
-		data = yaml.load(content) as Collection;
-		break;
-	}
+  const slug = path.split("/").pop()?.replace(".yaml", "") || "";
+  if (slug === collection) {
+    const content = (await getContent()) as string;
+    data = yaml.load(content) as Collection;
+    break;
+  }
 }
 
-if (!data) {
-	throw new Error(`Collection ${collection} not found`);
-}
+if (!data) throw new Error(`Collection ${collection} not found`);
 
 data.photos = sortPhotosByDate(data.photos);
-
-// Generate JSON-LD schema for collection
 const imageUrls = data.photos.map(photo => photo.image);
 const collectionUrl = `https://avm.photography/collections/${collection}`;
-const collectionSchema = generateCollectionSchema(
-	data.collection,
-	data.description,
-	imageUrls,
-	collectionUrl
-);
+const collectionSchema = generateCollectionSchema(data.collection, data.description, imageUrls, collectionUrl);
 ---
 
-<Layout title={`${data.collection} - Adrian Villanueva`} description={data.description} image={data.photos[0]?.image}>
+<Layout title={`${data.collection} — Adrian Villanueva`} description={data.description} image={data.photos[0]?.image}>
   <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
 
   <Header currentPage="collections" />
 
-  <main id="main-content" class="main">
-    <section class="collection-header">
-      <div class="header-container">
+  <main id="main-content">
+    <div class="hero">
+      <div class="hero-text">
         <Breadcrumbs collection={data.collection} />
-        <a href="/collections" class="back-link">
-          <span class="back-arrow">&larr;</span>
-          <span>Back to Collections</span>
-        </a>
-        <div class="header-tag">
-          <span class="tag-line"></span>
-          <span class="tag-text">Collection</span>
-          <span class="tag-count">{data.photos.length} photographs</span>
-        </div>
-        <h1>{data.collection}</h1>
-        <p class="description">{data.description}</p>
+        <h1 class="title">{data.collection}</h1>
+        <p class="desc">{data.description}</p>
+        <span class="count mono">{data.photos.length} photographs</span>
       </div>
-    </section>
+    </div>
 
-    <section class="gallery-section">
-      <div class="gallery-container">
-        <div class="gallery-grid">
-          {data.photos.map(photo => (
-            <PhotoCard
-              id={uniqueIdFromImage(photo)}
-              title={photo.title}
-              image={photo.image}
-              metadata={photo.metadata}
-            />
-          ))}
-        </div>
+    <section class="gallery">
+      <div class="grid">
+        {data.photos.map(photo => (
+          <PhotoCard
+            id={uniqueIdFromImage(photo)}
+            title={photo.title}
+            image={photo.image}
+            metadata={photo.metadata}
+          />
+        ))}
       </div>
     </section>
   </main>
@@ -123,183 +78,56 @@ const collectionSchema = generateCollectionSchema(
 </Layout>
 
 <style>
-  .main {
-    min-height: calc(100vh - 200px);
-  }
-
-  .collection-header {
-    padding: 4rem 2rem 3rem;
-    border-bottom: 1px solid var(--color-border);
-    animation: fadeInUp 0.6s ease-out;
-  }
-
-  .header-container {
+  .hero {
     max-width: 1400px;
     margin: 0 auto;
+    padding: var(--space-3xl) var(--page-gutter) var(--space-lg);
   }
 
-  .back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--color-text-secondary);
-    text-decoration: none;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    transition: color 0.3s;
-    margin-bottom: 2rem;
-  }
-
-  .back-link:hover {
-    color: var(--color-primary);
-  }
-
-  .back-arrow {
-    font-size: 1rem;
-    line-height: 1;
-  }
-
-  .header-tag {
+  .hero-text {
     display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    flex-direction: column;
+    gap: var(--space-sm);
   }
 
-  .tag-line {
-    display: block;
-    width: 40px;
-    height: 1px;
-    background: var(--color-primary);
+  .title {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 600;
+    color: var(--color-ink-2);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
   }
 
-  .tag-text {
+  .desc {
+    font-size: var(--text-base);
+    color: var(--color-muted);
+    max-width: 55ch;
+    line-height: 1.5;
+    margin-bottom: var(--space-sm);
+  }
+
+  .count {
     font-family: var(--font-mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--color-primary);
+    font-size: var(--text-sm);
+    color: var(--color-neutral);
+    letter-spacing: 0.03em;
   }
 
-  .tag-count {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    color: var(--color-text-secondary);
-    opacity: 0.6;
-    margin-left: auto;
-  }
+  .mono { font-family: var(--font-mono); }
 
-  h1 {
-    font-family: var(--font-serif);
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    color: var(--color-text);
-    margin: 0 0 0.75rem 0;
-    font-weight: 500;
-  }
-
-  .description {
-    color: var(--color-text-secondary);
-    font-size: 1.05rem;
-    margin: 0;
-    max-width: 600px;
-    font-weight: 300;
-    line-height: 1.6;
-  }
-
-  .gallery-section {
-    padding: 3rem 0 4rem 0;
-    animation: fadeInUp 0.6s ease-out 0.2s both;
-  }
-
-  .gallery-container {
-    width: 100%;
-  }
-
-  .gallery-grid {
-    columns: 4;
-    column-gap: 2rem;
-    padding: 2rem;
-    max-width: 1600px;
+  .gallery {
+    max-width: 1400px;
     margin: 0 auto;
+    padding: 0 var(--page-gutter) var(--space-3xl);
   }
 
-  @media (max-width: 1400px) {
-    .gallery-grid {
-      columns: 3;
-      column-gap: 1.5rem;
-    }
+  .grid {
+    columns: 4;
+    column-gap: var(--space-lg);
   }
 
-  @media (max-width: 1024px) {
-    .gallery-grid {
-      columns: 2;
-      column-gap: 1.25rem;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .collection-header {
-      padding: 2.5rem 1.25rem 2rem;
-    }
-
-    .gallery-grid {
-      padding: 1.5rem 1rem;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .gallery-grid {
-      columns: 1;
-      gap: 0;
-      padding: 1.5rem 1rem;
-    }
-
-    .tag-count {
-      margin-left: 0;
-      flex-basis: 100%;
-      padding-left: calc(40px + 1rem);
-    }
-
-    .back-link {
-      margin-bottom: 1.5rem;
-    }
-
-    h1 {
-      font-size: clamp(1.75rem, 6vw, 2.5rem);
-    }
-  }
-
-  @media (max-width: 480px) {
-    .collection-header {
-      padding: 1.5rem 1rem 1.5rem;
-    }
-
-    .gallery-grid {
-      padding: 1rem 0.75rem;
-    }
-
-    .description {
-      font-size: 0.9rem;
-    }
-
-    .tag-line {
-      width: 24px;
-    }
-
-    .tag-text {
-      font-size: 0.6rem;
-    }
-
-    .tag-count {
-      padding-left: calc(24px + 1rem);
-    }
-
-    .back-link {
-      font-size: 0.65rem;
-      margin-bottom: 1rem;
-    }
-  }
+  @media (max-width: 1200px) { .grid { columns: 3; } }
+  @media (max-width: 900px)  { .grid { columns: 2; column-gap: var(--space-md); } }
+  @media (max-width: 600px)  { .grid { columns: 1; } }
 </style>

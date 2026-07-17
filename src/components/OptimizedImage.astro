@@ -3,10 +3,8 @@ interface Props {
   src: string;
   alt: string;
   sizes?: string;
-  priority?: boolean;
   loading?: "lazy" | "eager";
   decoding?: "sync" | "async" | "auto";
-  metadata?: Record<string, any>;
   class?: string;
 }
 
@@ -14,62 +12,31 @@ const {
   src,
   alt,
   sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1400px) 33vw, 25vw",
-  priority = false,
-  loading = priority ? "eager" : "lazy",
+  loading = "lazy",
   decoding = "async",
-  metadata,
   class: className,
 } = Astro.props;
 
-// Derive size-specific URLs from the display URL
-// Input: https://cdn.../R0012164-display.avif
-// Outputs: thumbnail (350w), collection (700w), display (1400w)
 const baseUrl = src.replace(/-display\.\w+$/, '');
 const ext = src.match(/\.(\w+)$/)?.[1]?.toLowerCase() || 'avif';
 const thumbnailUrl = `${baseUrl}-thumbnail.${ext}`;
 const collectionUrl = `${baseUrl}-collection.${ext}`;
 const displayUrl = `${baseUrl}-display.${ext}`;
-
-// WebP variants
 const thumbWebp = `${baseUrl}-thumbnail.webp`;
 const collWebp = `${baseUrl}-collection.webp`;
 const displayWebp = `${baseUrl}-display.webp`;
 
-// Srcset with known widths
 const avifSrcset = `${thumbnailUrl} 350w, ${collectionUrl} 700w, ${displayUrl} 1400w`;
 const webpSrcset = `${thumbWebp} 350w, ${collWebp} 700w, ${displayWebp} 1400w`;
-
-const preloadLink = priority ? displayUrl : undefined;
 ---
 
-<picture class={`optimized-image ${className || ""}`} data-metadata={metadata ? JSON.stringify(metadata) : undefined}>
-  <source srcset={webpSrcset} sizes={sizes} type="image/webp" />
+<picture class={`img ${className || ""}`}>
   <source srcset={avifSrcset} sizes={sizes} type="image/avif" />
-  <img
-    src={thumbnailUrl}
-    alt={alt}
-    loading={loading}
-    decoding={decoding}
-    width="350"
-    height="auto"
-  />
+  <source srcset={webpSrcset} sizes={sizes} type="image/webp" />
+  <img src={thumbnailUrl} alt={alt} loading={loading} decoding={decoding} width="350" height="auto" />
 </picture>
 
-{priority && (
-  <link rel="preload" as="image" href={displayUrl} type={`image/${ext}`} />
-)}
-
 <style>
-  .optimized-image {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  .optimized-image img {
-    display: block;
-    width: 100%;
-    height: auto;
-    contain: layout style paint;
-  }
+  .img { display: block; width: 100%; }
+  .img img { display: block; width: 100%; height: auto; }
 </style>
