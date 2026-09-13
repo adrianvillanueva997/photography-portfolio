@@ -2,5 +2,23 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "schedule": [
+    "before 5am on the first day of the month"
+  ],
+  "prConcurrentLimit": 2,
+  "packageRules": [
+    {
+      "matchManagers": ["pnpm"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "non-major dependencies",
+      "groupSlug": "non-major-dependencies"
+    },
+    {
+      "matchManagers": ["pnpm"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "major dependencies",
+      "groupSlug": "major-dependencies"
+    }
   ]
 }
