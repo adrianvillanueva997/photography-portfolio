@@ -8,13 +8,13 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: process.env.BASE_URL || 'http://localhost:4321',
+    baseURL: process.env.BASE_URL || 'http://127.0.0.1:4322',
     trace: 'on-first-retry',
   },
   webServer: {
-    command: 'pnpm preview',
-    url: 'http://localhost:4321',
-    reuseExistingServer: !process.env.CI,
+    command: 'pnpm preview --host 127.0.0.1 --port 4322',
+    url: 'http://127.0.0.1:4322',
+    reuseExistingServer: false,
     timeout: 30000,
   },
 });

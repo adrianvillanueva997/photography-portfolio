@@ -1,5 +1,5 @@
 ---
-/* Hallmark · component: N5 Floating pill */
+/* Shared AVM/ system header */
 import { NAV_ITEMS } from "../consts";
 
 interface Props {
@@ -261,7 +261,7 @@ const { currentPage } = Astro.props;
   }
 
   .logo { margin-right: 2rem; }
-  .logo-text { font-family: var(--font-mono); font-size: var(--text-sm); letter-spacing: 0.04em; }
+  .logo-text { font-family: var(--font-mono); font-size: var(--text-sm); letter-spacing: 0.04em; color: var(--color-ink); }
   .nav { gap: 0.25rem; }
   .nav a {
     border-radius: 2px;
@@ -271,7 +271,9 @@ const { currentPage } = Astro.props;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
+  .nav a:hover { color: var(--color-ink); background: rgba(0, 230, 138, 0.1); }
   .nav a.active { background: transparent; color: var(--color-accent); font-weight: 500; }
+  .mobile-toggle { color: var(--color-ink); }
 
   @media (max-width: 640px) {
     .header { top: 0; padding: 0; }

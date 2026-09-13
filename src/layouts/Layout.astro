@@ -27,10 +27,9 @@ const fullImage = image.startsWith('http') ? image : siteUrl + image;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="theme-color" content="#f5f2eb" />
+    <meta name="theme-color" content="#08090a" />
     <meta name="generator" content={Astro.generator} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -66,19 +65,19 @@ const fullImage = image.startsWith('http') ? image : siteUrl + image;
 
 <style is:global>
   :root {
-    --color-paper:    oklch(96%  0.012 75);
-    --color-paper-2:  oklch(93%  0.014 75);
-    --color-paper-3:  oklch(88%  0.016 75);
-    --color-rule:     oklch(82%  0.008 75);
-    --color-neutral:  oklch(60%  0.008 65);
-    --color-muted:    oklch(42%  0.008 60);
-    --color-ink:      oklch(18%  0.008 55);
-    --color-ink-2:    oklch(26%  0.010 55);
-    --color-accent:   oklch(72%  0.18  65);
-    --color-accent-2: oklch(60%  0.20  58);
-    --color-accent-dark: oklch(35%  0.08  30);
-    --color-focus:    oklch(65%  0.18  70);
-    --color-glow:     oklch(80%  0.08  75 / 0.12);
+    --color-paper:    #08090a;
+    --color-paper-2:  #0f1114;
+    --color-paper-3:  #171a1e;
+    --color-rule:     rgba(255, 255, 255, 0.06);
+    --color-neutral:  #555d6b;
+    --color-muted:    #9ba3ae;
+    --color-ink:      #eaedf0;
+    --color-ink-2:    #f7f8f9;
+    --color-accent:   #00e68a;
+    --color-accent-2: #9b59b6;
+    --color-accent-dark: #00e68a;
+    --color-focus:    #00e68a;
+    --color-glow:     rgba(0, 230, 138, 0.15);
 
     --font-display: 'Sora', system-ui, sans-serif;
     --font-body:    'Sora', system-ui, sans-serif;
@@ -131,6 +130,20 @@ const fullImage = image.startsWith('http') ? image : siteUrl + image;
     min-height: 100vh;
     position: relative;
     overflow-x: clip;
+    background-image:
+      radial-gradient(ellipse at 80% 0%, oklch(30% 0.04 300 / 0.12), transparent 45%),
+      linear-gradient(90deg, transparent 0, transparent calc(50% - 600px), oklch(100% 0 0 / 0.025) calc(50% - 600px), transparent calc(50% - 599px));
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.035;
+    background: url('/grain.svg') repeat;
+    mix-blend-mode: screen;
   }
 
   ::selection {
