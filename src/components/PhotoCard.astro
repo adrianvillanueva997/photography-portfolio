@@ -1,8 +1,12 @@
 ---
+import Lightbox from './Lightbox.astro';
+
 interface Props {
   id: string;
   title: string;
   image: string;
+  collection?: string;
+  thumbnail?: string;
   metadata: {
     camera: string;
     lens: string;
@@ -12,16 +16,13 @@ interface Props {
   };
 }
 
-const { id, title, image, metadata } = Astro.props;
+const { id, title, image, collection, thumbnail, metadata } = Astro.props;
 
 const baseUrl = image.replace(/-display\.\w+$/, '');
 const ext = image.match(/\.(\w+)$/)?.[1] || 'avif';
-const thumbnailUrl = `${baseUrl}-thumbnail.${ext}`;
-const collectionUrl = `${baseUrl}-collection.${ext}`;
+const thumbnailUrl = thumbnail || `${baseUrl}-thumbnail.${ext}`;
+const collectionUrl = collection || `${baseUrl}-collection.${ext}`;
 const displayUrl = `${baseUrl}-display.${ext}`;
-const thumbWebp = `${baseUrl}-thumbnail.webp`;
-const collWebp = `${baseUrl}-collection.webp`;
-const displayWebp = `${baseUrl}-display.webp`;
 
 const isoValue = Array.isArray(metadata.settings.iso) ? metadata.settings.iso[0] : metadata.settings.iso;
 ---
@@ -30,8 +31,7 @@ const isoValue = Array.isArray(metadata.settings.iso) ? metadata.settings.iso[0]
   <a href={`/photos/${id}`} class="link" data-lightbox-trigger={id}>
     <picture>
       <source srcset={`${displayUrl} 1400w, ${collectionUrl} 700w, ${thumbnailUrl} 350w`} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1400px) 33vw, 25vw" type="image/avif" />
-      <source srcset={`${displayWebp} 1400w, ${collWebp} 700w, ${thumbWebp} 350w`} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1400px) 33vw, 25vw" type="image/webp" />
-      <img src={thumbnailUrl} alt={title} loading="lazy" decoding="async" width="350" height="auto" />
+      <img src={thumbnailUrl} alt={title} loading="lazy" decoding="async" width="350" />
     </picture>
     <div class="caption">
       <span class="title">{title}</span>
@@ -39,6 +39,8 @@ const isoValue = Array.isArray(metadata.settings.iso) ? metadata.settings.iso[0]
     </div>
   </a>
 </article>
+
+<Lightbox id={id} image={displayUrl} thumbnail={thumbnailUrl} title={title} metadata={metadata} />
 
 <style>
   .card {
@@ -62,12 +64,16 @@ const isoValue = Array.isArray(metadata.settings.iso) ? metadata.settings.iso[0]
     color: var(--color-accent);
   }
 
+  .link:hover img { filter: saturate(1.08) contrast(1.02); }
+
   picture,
   img {
     display: block;
     width: 100%;
     height: auto;
   }
+
+  img { transition: filter var(--dur-short) var(--ease-out); }
 
   .caption {
     padding: var(--space-sm) 0;
