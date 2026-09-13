@@ -1,5 +1,5 @@
 ---
-/* Hallmark · component: N5 Floating pill */
+/* Shared AVM/ system header */
 import { NAV_ITEMS } from "../consts";
 
 interface Props {
@@ -12,21 +12,10 @@ const { currentPage } = Astro.props;
 <header class="header" role="banner">
   <div class="header-inner">
     <a href="/" class="logo" aria-label="Home">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="28" height="28" aria-hidden="true">
-        <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M 50 50 L 50 15" stroke="currentColor" stroke-width="1" fill="none"/>
-        <path d="M 50 50 L 75 30" stroke="currentColor" stroke-width="1" fill="none"/>
-        <path d="M 50 50 L 85 50" stroke="currentColor" stroke-width="1" fill="none"/>
-        <path d="M 50 50 L 75 70" stroke="currentColor" stroke-width="1" fill="none"/>
-        <path d="M 50 50 L 50 85" stroke="currentColor" stroke-width="1" fill="none"/>
-        <path d="M 50 50 L 25 70" stroke="currentColor" stroke-width="1" fill="none"/>
-        <path d="M 50 50 L 15 50" stroke="currentColor" stroke-width="1" fill="none"/>
-        <path d="M 50 50 L 25 30" stroke="currentColor" stroke-width="1" fill="none"/>
-        <circle cx="50" cy="50" r="7" fill="currentColor"/>
-      </svg>
-      <span class="logo-text">AV</span>
+      <span class="monogram">AVM/</span>
+      <span class="logo-text">Photography</span>
     </a>
-    <nav class="nav" role="navigation" aria-label="Main navigation">
+    <nav id="main-navigation" class="nav" role="navigation" aria-label="Main navigation">
       {NAV_ITEMS.map(item => (
         <a
           href={item.href}
@@ -35,7 +24,7 @@ const { currentPage } = Astro.props;
         >{item.label}</a>
       ))}
     </nav>
-    <button class="mobile-toggle" aria-label="Toggle menu" aria-expanded="false" type="button">
+    <button class="mobile-toggle" aria-label="Toggle menu" aria-controls="main-navigation" aria-expanded="false" type="button">
       <span class="bar"></span>
       <span class="bar"></span>
     </button>
@@ -51,6 +40,30 @@ const { currentPage } = Astro.props;
     toggle.setAttribute('aria-expanded', (!expanded).toString());
     nav?.classList.toggle('open');
     document.body.classList.toggle('menu-open');
+    if (!expanded) nav?.querySelector('a')?.focus();
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!nav?.classList.contains('open')) return;
+    const target = event.target as Node;
+    if (!nav.contains(target) && !toggle?.contains(target)) {
+      nav.classList.remove('open');
+      toggle?.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('menu-open');
+    }
+  });
+
+  nav?.addEventListener('keydown', (event) => {
+    if (event.key !== 'Tab' || !nav.classList.contains('open')) return;
+    const links = [...nav.querySelectorAll<HTMLAnchorElement>('a')];
+    if (!links.length) return;
+    if (event.shiftKey && document.activeElement === links[0]) {
+      event.preventDefault();
+      links.at(-1)?.focus();
+    } else if (!event.shiftKey && document.activeElement === links.at(-1)) {
+      event.preventDefault();
+      links[0].focus();
+    }
   });
 
   document.addEventListener('keydown', (e) => {
@@ -110,6 +123,13 @@ const { currentPage } = Astro.props;
     font-size: 1rem;
     letter-spacing: 0.05em;
     color: var(--color-paper);
+  }
+
+  .monogram {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--color-accent);
   }
 
   .nav {
@@ -216,5 +236,63 @@ const { currentPage } = Astro.props;
     inset: 0;
     background: oklch(0% 0 0 / 0.4);
     z-index: 150;
+  }
+
+  /* Shared AVM header: full-width, technical, and quieter than the gallery. */
+  .header {
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    transform: none;
+    padding: 0;
+    border-radius: 0;
+    background: oklch(18% 0.008 55 / 0.92);
+    border-bottom: 1px solid oklch(96% 0.006 75 / 0.1);
+    box-shadow: none;
+  }
+
+  .header-inner {
+    width: min(1200px, calc(100% - 2rem));
+    min-height: 68px;
+    margin: 0 auto;
+    padding: 0;
+    justify-content: space-between;
+  }
+
+  .logo { margin-right: 2rem; }
+  .logo-text { font-family: var(--font-mono); font-size: var(--text-sm); letter-spacing: 0.04em; color: var(--color-ink); }
+  .nav { gap: 0.25rem; }
+  .nav a {
+    border-radius: 2px;
+    padding: 0.55rem 0.75rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .nav a:hover { color: var(--color-ink); background: rgba(0, 230, 138, 0.1); }
+  .nav a.active { background: transparent; color: var(--color-accent); font-weight: 500; }
+  .mobile-toggle { color: var(--color-ink); }
+
+  @media (max-width: 640px) {
+    .header { top: 0; padding: 0; }
+    .header-inner { width: calc(100% - 2rem); min-height: 60px; padding: 0; }
+    .logo { margin-right: 0; }
+    .logo-text { display: inline; }
+    .nav {
+      display: flex;
+      top: 0;
+      right: -100%;
+      width: min(80%, 300px);
+      max-width: none;
+      padding: 5rem var(--space-lg) var(--space-lg);
+      background: oklch(14% 0.008 55);
+      border-left: 1px solid oklch(96% 0.006 75 / 0.1);
+    }
+    .nav.open { right: 0; }
+    .nav a { width: 100%; min-height: 44px; padding: 0.85rem 0; border-bottom: 1px solid oklch(96% 0.006 75 / 0.08); }
+    .nav a.active { background: transparent; color: var(--color-accent); }
+    .mobile-toggle { display: flex; }
   }
 </style>

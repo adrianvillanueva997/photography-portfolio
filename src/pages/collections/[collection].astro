@@ -8,7 +8,7 @@ import { generateCollectionSchema, uniqueIdFromImage, sortPhotosByDate } from ".
 import yaml from "js-yaml";
 
 interface Photo {
-  id: string; title: string; image: string; thumbnail: string;
+  id: string; title: string; image: string; collection?: string; thumbnail: string;
   metadata: { camera: string; lens: string; settings: { iso: number | number[]; aperture: string; shutter: string; focalLength: number | string; }; location: string; dateTaken: string; };
 }
 
@@ -67,6 +67,8 @@ const collectionSchema = generateCollectionSchema(data.collection, data.descript
             id={uniqueIdFromImage(photo)}
             title={photo.title}
             image={photo.image}
+            collection={photo.collection}
+            thumbnail={photo.thumbnail}
             metadata={photo.metadata}
           />
         ))}
@@ -76,6 +78,15 @@ const collectionSchema = generateCollectionSchema(data.collection, data.descript
 
   <Footer />
 </Layout>
+
+<script is:inline>
+  document.addEventListener('click', function(e) {
+    var trigger = e.target.closest('[data-lightbox-trigger]');
+    if (!trigger) return;
+    var lightbox = document.getElementById('lightbox-' + trigger.getAttribute('data-lightbox-trigger'));
+    if (lightbox && lightbox.__open) { e.preventDefault(); lightbox.__open(); }
+  });
+</script>
 
 <style>
   .hero {

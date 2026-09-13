@@ -1,11 +1,9 @@
 ---
-/* Hallmark · macrostructure: Photographic · tone: atmospheric · anchor hue: amber (65°) */
+/* AVM/ photography archive · editorial field journal · active green / purple secondary */
 
 import Layout from "../layouts/Layout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import ProfileSection from "../components/ProfileSection.astro";
-import Stats from "../components/Stats.astro";
 import PhotoCard from "../components/PhotoCard.astro";
 import { uniqueIdFromImage, sortPhotosByDate } from "../lib/imageMetadata.ts";
 import yaml from "js-yaml";
@@ -14,6 +12,7 @@ interface Photo {
   id: string;
   title: string;
   image: string;
+  collection?: string;
   thumbnail: string;
   metadata: {
     camera: string;
@@ -47,11 +46,13 @@ const collectionCount = Object.keys(collectionFiles).length;
   <Header currentPage="home" />
 
   <main id="main-content">
-    <ProfileSection />
-
     <section class="photo-grid">
       <div class="grid-header">
-        <span class="grid-count mono">{sortedPhotos.length} photographs across {collectionCount} collections</span>
+        <div>
+          <p class="section-index mono">01 / SELECTED WORK</p>
+          <h2>Photographs</h2>
+        </div>
+        <span class="grid-count mono">{sortedPhotos.length} photographs / {collectionCount} collections</span>
       </div>
       <div class="grid">
         {sortedPhotos.map(photo => (
@@ -59,9 +60,20 @@ const collectionCount = Object.keys(collectionFiles).length;
             id={uniqueIdFromImage(photo)}
             title={photo.title}
             image={photo.image}
+            collection={photo.collection}
+            thumbnail={photo.thumbnail}
             metadata={photo.metadata}
           />
         ))}
+      </div>
+    </section>
+
+    <section class="about-band" aria-labelledby="about-title">
+      <div class="section-index mono">02 / ABOUT</div>
+      <div>
+        <h2 id="about-title">Tokyo, by way of Spain.</h2>
+        <p>Software engineer by day, photographer in my free time.</p>
+        <a class="featured-link mono" href="/about">About the photographer <span aria-hidden="true">-&gt;</span></a>
       </div>
     </section>
 
@@ -83,8 +95,12 @@ const collectionCount = Object.keys(collectionFiles).length;
   .photo-grid {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 var(--page-gutter) var(--space-3xl);
+    padding: var(--space-3xl) var(--page-gutter) var(--space-3xl);
   }
+
+  .section-index { color: var(--color-accent-dark); letter-spacing: 0.12em; font-size: var(--text-micro); }
+  .featured-link { display: inline-flex; gap: 0.6rem; margin-top: var(--space-lg); color: var(--color-ink-2); font-size: var(--text-sm); }
+  .featured-link:hover { color: var(--color-accent-2); }
 
   .grid-header {
     display: flex;
@@ -94,6 +110,11 @@ const collectionCount = Object.keys(collectionFiles).length;
     border-bottom: 1px solid var(--color-rule);
     margin-bottom: var(--space-lg);
   }
+
+  .grid-header h2 { margin-top: var(--space-xs); font-family: var(--font-display); font-size: var(--text-xl); font-weight: 500; color: var(--color-ink-2); }
+  .about-band { max-width: 1200px; margin: var(--space-2xl) auto 0; padding: var(--space-lg) var(--page-gutter) var(--space-3xl); border-top: 1px solid var(--color-rule); display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-xl); }
+  .about-band h2 { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 500; color: var(--color-ink-2); margin-bottom: var(--space-sm); }
+  .about-band p { max-width: 54ch; color: var(--color-muted); line-height: 1.7; }
 
   .grid-count {
     font-family: var(--font-mono);
@@ -112,4 +133,5 @@ const collectionCount = Object.keys(collectionFiles).length;
   @media (max-width: 1200px) { .grid { columns: 3; } }
   @media (max-width: 900px)  { .grid { columns: 2; column-gap: var(--space-md); } }
   @media (max-width: 600px)  { .grid { columns: 1; } }
+  @media (max-width: 700px) { .about-band { grid-template-columns: 1fr; gap: var(--space-md); } }
 </style>

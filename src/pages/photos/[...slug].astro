@@ -51,7 +51,6 @@ const personSchema = generatePersonSchema();
 const pageTitle = `${photo.title} — Photography by Adrian Villanueva`;
 const baseUrl = photo.image.replace(/-display\.\w+$/, '');
 const ext = photo.image.match(/\.(\w+)$/)?.[1] || 'avif';
-const displayWebp = `${baseUrl}-display.webp`;
 const thumbnailUrl = `${baseUrl}-thumbnail.${ext}`;
 const displayUrl = `${baseUrl}-display.${ext}`;
 ---
@@ -67,7 +66,6 @@ const displayUrl = `${baseUrl}-display.${ext}`;
       <div class="image-area">
         <picture>
           <source srcset={displayUrl} type="image/avif" />
-          <source srcset={displayWebp} type="image/webp" />
           <img src={displayUrl} alt={photo.title} />
         </picture>
         <Watermark />
@@ -260,12 +258,12 @@ const displayUrl = `${baseUrl}-display.${ext}`;
     border: 1px solid var(--color-rule);
     border-radius: 6px;
     text-align: center;
-    background: oklch(96% 0.003 75 / 0.4);
+    background: rgba(255, 255, 255, 0.04);
   }
   .nav-link:hover {
     color: var(--color-accent);
     border-color: var(--color-accent);
-    background: oklch(72% 0.18 65 / 0.08);
+    background: rgba(0, 230, 138, 0.08);
   }
 
   @media (max-width: 900px) {

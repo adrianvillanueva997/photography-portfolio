@@ -44,7 +44,7 @@ test.describe('About', () => {
   test('about page loads', async ({ page }) => {
     await page.goto('/about');
     await expect(page).toHaveTitle(/About/);
-    await expect(page.locator('h1')).toContainText('About');
+    await expect(page.locator('h1.page-title')).toContainText('About');
   });
 });
 

@@ -5,7 +5,7 @@ import Footer from "../../components/Footer.astro";
 import yaml from "js-yaml";
 
 interface Photo {
-  id?: string; title: string; thumbnail: string; collection?: string;
+  id?: string; title: string; image?: string; thumbnail?: string; collection?: string;
   metadata?: { camera: string; lens: string; settings: { iso: number | number[]; aperture: string; shutter: string; focalLength: string | number; }; location: string; dateTaken: string; };
 }
 
@@ -38,13 +38,12 @@ const sortedCollections = collections.sort((a, b) => b.data.photos.length - a.da
       {sortedCollections.map((collection, index) => {
         const photo = collection.data.photos[0];
         const imageUrl = photo?.collection || photo?.image || '';
-        const ext = imageUrl.match(/\.(\w+)$/)?.[1] || 'avif';
-        const thumbUrl = imageUrl.replace(/-display\.\w+$/, '') + '-thumbnail.' + ext;
+        const thumbUrl = photo?.thumbnail || imageUrl.replace(/-collection\.\w+$/, '-thumbnail.$1').replace(/-display\.\w+$/, '-thumbnail.$1');
         return (
           <a href={`/collections/${collection.slug}`} class="card" style={`view-transition-name: coll-${index}`}>
             <div class="cover">
               <picture>
-                <source srcset={thumbUrl} type={`image/${ext}`} />
+                <source srcset={imageUrl} type="image/avif" />
                 <img src={thumbUrl} alt={collection.data.collection} loading={index < 2 ? "eager" : "lazy"} />
               </picture>
             </div>
@@ -109,6 +108,7 @@ const sortedCollections = collections.sort((a, b) => b.data.photos.length - a.da
 
   .card:hover {
     border-color: var(--color-accent);
+    background: var(--color-paper-2);
   }
 
   .cover {

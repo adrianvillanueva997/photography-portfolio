@@ -6,25 +6,25 @@ to it. Amend intentionally — the file is the rule.
 ## System
 - Genre · atmospheric
 - Macrostructure · Photographic
-- Theme · Bloom (atmospheric cluster)
-- Axes · light / geometric-sans / warm (65°)
+- Theme · System Journal (dark editorial archive)
+- Axes · dark / geometric-sans / active green
 
 ## Tokens (canonical · `src/layouts/Layout.astro` `:root` is the source of truth)
 ```css
 :root {
-  --color-paper:      oklch(96%  0.012 75);
-  --color-paper-2:    oklch(93%  0.014 75);
-  --color-paper-3:    oklch(88%  0.016 75);
-  --color-rule:       oklch(82%  0.008 75);
-  --color-neutral:    oklch(60%  0.008 65);
-  --color-muted:      oklch(42%  0.008 60);
-  --color-ink:        oklch(18%  0.008 55);
-  --color-ink-2:      oklch(26%  0.010 55);
-  --color-accent:     oklch(72%  0.18  65);
-  --color-accent-2:   oklch(60%  0.20  58);
-  --color-accent-dark: oklch(35%  0.08  30);
-  --color-focus:      oklch(65%  0.18  70);
-  --color-glow:       oklch(80%  0.08  75 / 0.12);
+  --color-paper:      #08090a;
+  --color-paper-2:    #0f1114;
+  --color-paper-3:    #171a1e;
+  --color-rule:       rgba(255, 255, 255, 0.06);
+  --color-neutral:    #555d6b;
+  --color-muted:      #9ba3ae;
+  --color-ink:        #eaedf0;
+  --color-ink-2:      #f7f8f9;
+  --color-accent:     #00e68a;
+  --color-accent-2:   #9b59b6;
+  --color-accent-dark: #00e68a;
+  --color-focus:      #00e68a;
+  --color-glow:       rgba(0, 230, 138, 0.15);
 
   --font-display: 'Sora', system-ui, sans-serif;
   --font-body:    'Sora', system-ui, sans-serif;
@@ -44,9 +44,9 @@ to it. Amend intentionally — the file is the rule.
 ```
 
 ## Nav
-- Archetype · N5 Floating pill
-- Fixed, centered, pill-shaped dark chip with backdrop blur
-- Active page: accent background, light text
+- Archetype · System Journal header
+- Fixed, full-width dark header with a centered content rail
+- Active page: green system accent and light text
 - Mobile: drawer overlay from right
 
 ## Footer
