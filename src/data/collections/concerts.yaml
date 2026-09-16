@@ -1,0 +1,51 @@
+collection: Concerts
+description: Live music and concert photography
+photos:
+  - id: batushka001
+    title: Batushka Shibuya 2024
+    image: https://cdn.avm.photography/collections/concerts/batushka001-display.avif
+    collection: https://cdn.avm.photography/collections/concerts/batushka001-collection.avif
+    thumbnail: https://cdn.avm.photography/collections/concerts/batushka001-thumbnail.avif
+    metadata:
+      camera: Apple iPhone 15 Pro Max
+      lens: Main Camera
+      settings:
+        iso:
+          - 500
+        aperture: f/1.78
+        shutter: 1/33
+        focalLength: 48mm
+      location: Shibuya, Tokyo, Japan
+      dateTaken: "2024"
+  - id: amon-amarth001
+    title: Amon Amarth Tilburg 2023
+    image: https://cdn.avm.photography/collections/concerts/amon_amarth001-display.avif
+    collection: https://cdn.avm.photography/collections/concerts/amon_amarth001-collection.avif
+    thumbnail: https://cdn.avm.photography/collections/concerts/amon_amarth001-thumbnail.avif
+    metadata:
+      camera: Apple iPhone 15 Pro Max
+      lens: Main Camera
+      settings:
+        iso:
+          - 1600
+        aperture: f/1.78
+        shutter: 1/25
+        focalLength: 24mm
+      location: Tilburg, Netherlands
+      dateTaken: "2023"
+  - id: zakk-wylde001
+    title: Zakk Wylde with Pantera Amsterdam 2023
+    image: https://cdn.avm.photography/collections/concerts/zakk_wylde001-display.avif
+    collection: https://cdn.avm.photography/collections/concerts/zakk_wylde001-collection.avif
+    thumbnail: https://cdn.avm.photography/collections/concerts/zakk_wylde001-thumbnail.avif
+    metadata:
+      camera: Apple iPhone 15 Pro Max
+      lens: Main Camera
+      settings:
+        iso:
+          - 200
+        aperture: f/1.78
+        shutter: 1/50
+        focalLength: 62mm
+      location: Amsterdam, Netherlands
+      dateTaken: "2023"
