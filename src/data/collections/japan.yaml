@@ -1,0 +1,19 @@
+collection: Japan
+description: Landscapes and scenes from Japan
+photos:
+  - id: fujisan
+    title: Mount Fuji
+    image: https://cdn.avm.photography/collections/japan/fujisan_raw-display.avif
+    collection: https://cdn.avm.photography/collections/japan/fujisan_raw-collection.avif
+    thumbnail: https://cdn.avm.photography/collections/japan/fujisan_raw-thumbnail.avif
+    metadata:
+      camera: Apple iPhone 15 Pro Max
+      lens: Main Camera
+      settings:
+        iso:
+          - 250
+        aperture: f/1.78
+        shutter: 1/50
+        focalLength: 24mm
+      location: Susono, Shizuoka, Japan
+      dateTaken: "2025"
