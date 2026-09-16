@@ -3,6 +3,8 @@ pipeline_artifacts/raw/**.png
 pipeline_artifacts/raw/**.DNG
 pipeline_artifacts/converted/**.avif
 pipeline_artifacts/converted/**.json
+test-results/
+playwright-report/
 .astro
 ### Node
 # Logs
